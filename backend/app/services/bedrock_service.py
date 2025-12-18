@@ -261,7 +261,7 @@ OUTPUT FORMAT (respond with valid JSON only):
         Deterministic stub evaluation (no LLM required).
         Uses heuristic analysis for MVP demonstration.
         
-        NOTE: This is for hackathon demo purposes.
+        NOTE: This is for demonstration purposes.
         Production uses actual Bedrock API calls.
         """
         transcript_lower = transcript.lower()

@@ -170,15 +170,16 @@ export default function Home() {
           </div>
         </header>
 
-        <main className="main">
-          <div className="hero">
-            <div className="aws-badge">
-              <span className="aws-icon">AWS</span>
-              ImpactX Hackathon
+          <main className="main">
+            <div className="hero">
+              <div className="aws-badge">
+                <span className="aws-icon">AWS</span>
+                Multimodal Analysis
+              </div>
+              <h2>Teaching Quality Intelligence</h2>
+              <p>Upload lecture videos, get AI-powered evaluation with explainable scores</p>
             </div>
-            <h2>Multimodal AI for Teaching Quality</h2>
-            <p>Upload lecture videos, get AI-powered evaluation with explainable scores</p>
-          </div>
+
 
           <div className="progress-bar">
             {['upload', 'syllabus', 'transcribe', 'evaluate', 'results'].map((step, idx) => (
@@ -478,7 +479,7 @@ export default function Home() {
 
         <footer className="footer">
           <div className="footer-content">
-            <p>Mentora - AWS ImpactX Hackathon 2024</p>
+            <p>Mentora - AI Teaching Quality Evaluation</p>
             <p className="footer-sub">Secure-by-design GenAI orchestration for education</p>
           </div>
         </footer>

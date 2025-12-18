@@ -3,8 +3,6 @@ Mentora API - Main Application
 ==============================
 AWS-First Multimodal AI System for Teaching Quality Evaluation
 
-AWS IMPACTX HACKATHON PROJECT
------------------------------
 This application demonstrates secure GenAI orchestration with:
 - Amazon Bedrock integration (stub/ready)
 - Amazon Transcribe integration (stub/ready)
@@ -16,7 +14,7 @@ ARCHITECTURE:
 │                      Frontend (Next.js)                      │
 │              GA4 Analytics + Professional UI                 │
 └─────────────────────────────┬───────────────────────────────┘
-                              │
+                                │
 ┌─────────────────────────────▼───────────────────────────────┐
 │                    FastAPI Backend                           │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
@@ -32,6 +30,7 @@ ARCHITECTURE:
 SECURITY: All AI operations follow trust boundaries.
 AUDITABILITY: All evaluations are logged and explainable.
 """
+
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
@@ -49,8 +48,6 @@ app = FastAPI(
     title="Mentora API",
     description="""
     ## AWS-First Multimodal AI System for Teaching Quality Evaluation
-    
-    ### AWS ImpactX Hackathon Project
     
     **Features:**
     - 🎬 Video Upload & Processing (AWS S3)
@@ -116,7 +113,6 @@ async def root():
         "name": "Mentora API",
         "version": "1.0.0",
         "description": "AWS-First Multimodal AI System for Teaching Quality Evaluation",
-        "hackathon": "AWS ImpactX - Generative AI",
         "status": "operational",
         "aws_services": {
             "bedrock": {"status": "stub_ready", "model": settings.AWS_BEDROCK_MODEL_ID},

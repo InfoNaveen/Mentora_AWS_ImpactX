@@ -68,106 +68,122 @@ export interface AWSStatus {
   security: Record<string, string>;
 }
 
-export const apiService = {
-  uploadVideo: async (file: File): Promise<UploadResponse> => {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    const response = await api.post('/upload/video', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
-    
-    return response.data;
-  },
+export const uploadVideo = async (file: File): Promise<UploadResponse> => {
+  const formData = new FormData();
+  formData.append('file', file);
+  
+  const response = await api.post('/upload/video', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+  
+  return response.data;
+};
 
-  transcribeVideo: async (videoPath: string): Promise<TranscribeResponse> => {
-    const response = await api.post('/transcribe', {
-      video_path: videoPath,
-    });
-    
-    return response.data;
-  },
+export const transcribeVideo = async (videoPath: string): Promise<TranscribeResponse> => {
+  const response = await api.post('/transcribe', {
+    video_path: videoPath,
+  });
+  
+  return response.data;
+};
 
-  evaluateTeaching: async (
-    transcribedText: string,
-    syllabusText: string,
-    teachingObjectives?: string
-  ): Promise<EvaluateResponse> => {
-    const response = await api.post('/evaluate', {
-      transcribed_text: transcribedText,
-      syllabus_text: syllabusText,
-      teaching_objectives: teachingObjectives,
-    });
-    
-    return response.data;
-  },
+export const evaluateTeaching = async (
+  transcribedText: string,
+  syllabusText: string,
+  teachingObjectives?: string
+): Promise<EvaluateResponse> => {
+  const response = await api.post('/evaluate', {
+    transcribed_text: transcribedText,
+    syllabus_text: syllabusText,
+    teaching_objectives: teachingObjectives,
+  });
+  
+  return response.data;
+};
 
-  healthCheck: async (): Promise<{ status: string; message: string }> => {
-    const response = await api.get('/health');
-    return response.data;
-  },
+export const healthCheck = async (): Promise<{ status: string; message: string }> => {
+  const response = await api.get('/health');
+  return response.data;
+};
 
-  getAWSStatus: async (): Promise<AWSStatus> => {
-    const response = await api.get('/aws-status');
-    return response.data;
-  },
+export const getAWSStatus = async (): Promise<AWSStatus> => {
+  const response = await api.get('/aws-status');
+  return response.data;
+};
 
-  login: async (email: string, password: string): Promise<AuthResponse> => {
-    const response = await api.post('/auth/login', { email, password });
-    if (response.data.access_token) {
-      localStorage.setItem('mentora_token', response.data.access_token);
-      localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
-    }
-    return response.data;
-  },
-
-  register: async (
-    email: string, 
-    password: string, 
-    name: string,
-    role?: string
-  ): Promise<AuthResponse> => {
-    const response = await api.post('/auth/register', { 
-      email, 
-      password, 
-      name,
-      role: role || 'evaluator'
-    });
-    if (response.data.access_token) {
-      localStorage.setItem('mentora_token', response.data.access_token);
-      localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
-    }
-    return response.data;
-  },
-
-  getDemoToken: async (): Promise<AuthResponse> => {
-    const response = await api.post('/auth/demo-token');
-    if (response.data.access_token) {
-      localStorage.setItem('mentora_token', response.data.access_token);
-      localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
-    }
-    return response.data;
-  },
-
-  logout: () => {
-    localStorage.removeItem('mentora_token');
-    localStorage.removeItem('mentora_user');
-  },
-
-  getCurrentUser: () => {
-    if (typeof window !== 'undefined') {
-      const user = localStorage.getItem('mentora_user');
-      return user ? JSON.parse(user) : null;
-    }
-    return null;
-  },
-
-  isAuthenticated: () => {
-    if (typeof window !== 'undefined') {
-      return !!localStorage.getItem('mentora_token');
-    }
-    return false;
+export const login = async (email: string, password: string): Promise<AuthResponse> => {
+  const response = await api.post('/auth/login', { email, password });
+  if (response.data.access_token) {
+    localStorage.setItem('mentora_token', response.data.access_token);
+    localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
   }
+  return response.data;
+};
+
+export const register = async (
+  email: string, 
+  password: string, 
+  name: string,
+  role?: string
+): Promise<AuthResponse> => {
+  const response = await api.post('/auth/register', { 
+    email, 
+    password, 
+    name,
+    role: role || 'evaluator'
+  });
+  if (response.data.access_token) {
+    localStorage.setItem('mentora_token', response.data.access_token);
+    localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
+  }
+  return response.data;
+};
+
+export const getDemoToken = async (): Promise<AuthResponse> => {
+  const response = await api.post('/auth/demo-token');
+  if (response.data.access_token) {
+    localStorage.setItem('mentora_token', response.data.access_token);
+    localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
+  }
+  return response.data;
+};
+
+export const logout = () => {
+  localStorage.removeItem('mentora_token');
+  localStorage.removeItem('mentora_user');
+};
+
+export const getCurrentUser = () => {
+  if (typeof window !== 'undefined') {
+    const user = localStorage.getItem('mentora_user');
+    try {
+      return user ? JSON.parse(user) : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  return null;
+};
+
+export const isAuthenticated = () => {
+  if (typeof window !== 'undefined') {
+    return !!localStorage.getItem('mentora_token');
+  }
+  return false;
+};
+
+export const apiService = {
+  uploadVideo,
+  transcribeVideo,
+  evaluateTeaching,
+  healthCheck,
+  getAWSStatus,
+  login,
+  register,
+  getDemoToken,
+  logout,
+  getCurrentUser,
+  isAuthenticated
 };

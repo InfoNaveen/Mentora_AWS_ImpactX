@@ -11,7 +11,7 @@ RBAC ROLES:
 - admin: Full system access
 - evaluator: Create and view evaluations
 - institution: View reports for their institution
-- demo: Limited access for hackathon demo
+- demo: Limited access for demonstration
 """
 from fastapi import APIRouter, HTTPException, Depends, status
 from pydantic import BaseModel
@@ -85,7 +85,7 @@ async def login(request: LoginRequest):
     """
     Authenticate user and return JWT token.
     
-    DEMO MODE: Uses in-memory users for hackathon.
+    DEMO MODE: Uses in-memory users.
     PRODUCTION: Validates against Supabase/Cognito.
     """
     user_data = DEMO_USERS.get(request.email)
@@ -177,22 +177,22 @@ async def get_demo_token():
     """
     Get a demo token for unauthenticated testing.
     
-    This endpoint allows judges to quickly test the system
+    This endpoint allows users to quickly test the system
     without going through registration.
     """
     token = create_jwt_token(
-        user_id="demo-hackathon",
-        email="judge@hackathon.aws",
+        user_id="demo-user",
+        email="demo@mentora.ai",
         role="demo"
     )
     
     return {
         "access_token": token,
         "token_type": "bearer",
-        "message": "Demo token for hackathon testing",
+        "message": "Demo token for testing",
         "user": {
-            "id": "demo-hackathon",
-            "email": "judge@hackathon.aws",
+            "id": "demo-user",
+            "email": "demo@mentora.ai",
             "role": "demo",
             "permissions": ROLE_PERMISSIONS[UserRole.DEMO]
         },

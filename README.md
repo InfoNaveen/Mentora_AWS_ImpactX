@@ -1,12 +1,10 @@
 # Mentora - AWS-First Multimodal AI for Teaching Quality Evaluation
 
-## AWS ImpactX Hackathon - Generative AI Track
-
 Mentora is a **secure-by-design GenAI orchestration platform** that evaluates teaching quality through multimodal analysis of lecture videos. Built with AWS-native architecture patterns, it demonstrates explainable AI decisions with full audit trails.
 
 ---
 
-## Quick Start (< 5 Minutes for Judges)
+## Quick Start (< 5 Minutes)
 
 ### Option 1: Use Demo Mode (Recommended)
 1. Open http://localhost:3001
@@ -33,7 +31,7 @@ Mentora is a **secure-by-design GenAI orchestration platform** that evaluates te
 │                    Frontend (Next.js)                        │
 │              GA4 Analytics + Professional UI                 │
 └─────────────────────────────┬───────────────────────────────┘
-                              │
+                                │
 ┌─────────────────────────────▼───────────────────────────────┐
 │                    FastAPI Backend                           │
 │  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
@@ -73,14 +71,14 @@ Mentora is a **secure-by-design GenAI orchestration platform** that evaluates te
 │  - Sanitization required before any processing              │
 │  - File uploads validated and scanned                       │
 └─────────────────────────────────────────────────────────────┘
-                              ↓
+                                ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  TRUST BOUNDARY 2: Service Layer                            │
 │  - Input sanitization enforced                              │
 │  - Rate limiting applied                                    │
 │  - Audit logging enabled                                    │
 └─────────────────────────────────────────────────────────────┘
-                              ↓
+                                ↓
 ┌─────────────────────────────────────────────────────────────┐
 │  TRUST BOUNDARY 3: AI/LLM Layer                             │
 │  - Prompt injection prevention                              │
@@ -138,7 +136,7 @@ Each score includes:
 ```
 POST /auth/login          - Login with email/password
 POST /auth/register       - Register new account
-POST /auth/demo-token     - Get demo token (for judges!)
+POST /auth/demo-token     - Get demo token
 GET  /auth/me             - Get current user profile
 ```
 
@@ -257,7 +255,7 @@ uvicorn main:app --reload --port 8001
 
 ---
 
-## For Judges
+## Summary
 
 This project demonstrates:
 
@@ -285,4 +283,5 @@ This project demonstrates:
 
 ## License
 
-MIT License - Built for AWS ImpactX Hackathon 2024
+MIT License
+
