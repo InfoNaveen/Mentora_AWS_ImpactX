@@ -1,85 +1,288 @@
-# Mentora - Multimodal AI Teaching Quality Evaluation
+# Mentora - AWS-First Multimodal AI for Teaching Quality Evaluation
 
-A prototype system that evaluates teaching quality using video, audio, and syllabus alignment through AI analysis.
+## AWS ImpactX Hackathon - Generative AI Track
+
+Mentora is a **secure-by-design GenAI orchestration platform** that evaluates teaching quality through multimodal analysis of lecture videos. Built with AWS-native architecture patterns, it demonstrates explainable AI decisions with full audit trails.
+
+---
+
+## Quick Start (< 5 Minutes for Judges)
+
+### Option 1: Use Demo Mode (Recommended)
+1. Open http://localhost:3001
+2. Click **"Quick Demo Access"** button
+3. Upload any video file (or use a sample)
+4. Enter a sample syllabus (e.g., "Machine learning, neural networks, deep learning")
+5. Click through the evaluation pipeline
+6. View your Teaching Quality Report!
+
+### Demo Credentials
+- **Email:** demo@mentora.ai
+- **Password:** demo123
+
+### API Docs
+- **Swagger UI:** http://localhost:8001/docs
+- **ReDoc:** http://localhost:8001/redoc
+
+---
+
+## Architecture
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    Frontend (Next.js)                        │
+│              GA4 Analytics + Professional UI                 │
+└─────────────────────────────┬───────────────────────────────┘
+                              │
+┌─────────────────────────────▼───────────────────────────────┐
+│                    FastAPI Backend                           │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │    Auth     │  │   Upload    │  │    Evaluation       │  │
+│  │  (Cognito)  │  │    (S3)     │  │    (Bedrock)        │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+│  ┌─────────────┐  ┌─────────────┐  ┌─────────────────────┐  │
+│  │ Transcribe  │  │ Rekognition │  │    Health Check     │  │
+│  │   (ASR)     │  │   (Vision)  │  │    & Monitoring     │  │
+│  └─────────────┘  └─────────────┘  └─────────────────────┘  │
+└─────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## AWS Services Integration
+
+| Service | Purpose | Status |
+|---------|---------|--------|
+| **Amazon Bedrock** | GenAI evaluation with Claude 3 Sonnet | Stub Ready |
+| **Amazon Transcribe** | Speech-to-text transcription | Stub Ready |
+| **Amazon Rekognition** | Visual engagement analysis | Stub Ready |
+| **Amazon S3** | Video storage | Stub Ready |
+| **Amazon Cognito** | Authentication | Planned (Supabase temporary) |
+| **CloudWatch** | Logging & monitoring | Commented |
+
+---
+
+## Security & AI Orchestration
+
+### Trust Boundaries
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│  TRUST BOUNDARY 1: User Input                               │
+│  - All user input is UNTRUSTED                              │
+│  - Sanitization required before any processing              │
+│  - File uploads validated and scanned                       │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  TRUST BOUNDARY 2: Service Layer                            │
+│  - Input sanitization enforced                              │
+│  - Rate limiting applied                                    │
+│  - Audit logging enabled                                    │
+└─────────────────────────────────────────────────────────────┘
+                              ↓
+┌─────────────────────────────────────────────────────────────┐
+│  TRUST BOUNDARY 3: AI/LLM Layer                             │
+│  - Prompt injection prevention                              │
+│  - Output validation and filtering                          │
+│  - Human-in-the-loop checkpoints                            │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Prompt Injection Prevention
+- User input is **NEVER** directly concatenated to prompts
+- All user content wrapped in explicit delimiters
+- System prompts are immutable and prepended
+- Output is validated before returning to user
+
+### Hallucination Mitigation
+- Deterministic rubric-based evaluation
+- Scores are bounded and validated
+- Reasoning is auditable and explainable
+- Human-in-the-loop for critical decisions
+
+---
+
+## RBAC (Role-Based Access Control)
+
+| Role | Permissions |
+|------|-------------|
+| **Admin** | Full access: evaluations, users, institutions, reports |
+| **Evaluator** | Create/read evaluations, basic reports |
+| **Institution** | Read reports for their institution |
+| **Demo** | Limited: create/read evaluations only |
+
+---
+
+## Evaluation Rubric
+
+The teaching quality evaluation uses a **deterministic, explainable rubric**:
+
+| Criterion | Weight | Description |
+|-----------|--------|-------------|
+| **Engagement** | 25% | Student interaction, questions, interactive language |
+| **Concept Coverage** | 30% | Syllabus alignment, topic depth, sequencing |
+| **Clarity** | 25% | Language simplicity, sentence structure, definitions |
+| **Pedagogy** | 20% | Examples, scaffolding, summarization, understanding checks |
+
+Each score includes:
+- Numerical score (1-10)
+- Reasoning explanation
+- Specific improvement suggestion
+
+---
+
+## API Endpoints
+
+### Authentication
+```
+POST /auth/login          - Login with email/password
+POST /auth/register       - Register new account
+POST /auth/demo-token     - Get demo token (for judges!)
+GET  /auth/me             - Get current user profile
+```
+
+### Evaluation Pipeline
+```
+POST /upload/video        - Upload lecture video
+POST /transcribe          - Transcribe video to text
+POST /evaluate            - Run teaching quality evaluation
+GET  /health              - Health check
+GET  /aws-status          - AWS integration status
+```
+
+---
 
 ## Project Structure
 
 ```
 mentora/
-├── backend/                 # FastAPI backend
+├── backend/
 │   ├── app/
-│   │   ├── routes/         # API endpoints
-│   │   ├── services/       # Business logic
-│   │   ├── models/         # Data models
-│   │   └── utils/          # Utilities
-│   ├── uploads/            # Temporary file storage
-│   ├── requirements.txt
-│   └── main.py
-├── frontend/               # Next.js frontend
+│   │   ├── core/
+│   │   │   ├── config.py        # Centralized config
+│   │   │   └── security.py      # JWT + RBAC
+│   │   ├── routes/
+│   │   │   ├── auth.py          # Authentication
+│   │   │   ├── upload.py        # Video upload
+│   │   │   ├── transcribe.py    # Transcription
+│   │   │   ├── evaluate.py      # Evaluation
+│   │   │   └── health.py        # Health checks
+│   │   ├── services/
+│   │   │   ├── bedrock_service.py      # AWS Bedrock (GenAI)
+│   │   │   ├── transcribe_service.py   # AWS Transcribe
+│   │   │   ├── rekognition_service.py  # AWS Rekognition
+│   │   │   ├── storage_service.py      # AWS S3
+│   │   │   └── evaluation_service.py   # Core evaluation
+│   │   └── models/
+│   ├── main.py
+│   └── .env
+├── frontend/
 │   ├── src/
 │   │   ├── pages/
-│   │   ├── components/
+│   │   │   └── index.tsx        # Main app
+│   │   ├── lib/
+│   │   │   └── analytics.ts     # GA4 integration
 │   │   └── services/
-│   ├── package.json
-│   └── next.config.js
+│   │       └── api.ts           # API client
+│   └── .env.local
 └── README.md
 ```
 
-## Setup Instructions
+---
 
-### Backend Setup
-1. Navigate to backend directory: `cd backend`
-2. Create virtual environment: `python -m venv venv`
-3. Activate virtual environment:
-   - Windows: `venv\Scripts\activate`
-   - macOS/Linux: `source venv/bin/activate`
-4. Install dependencies: `pip install -r requirements.txt`
-5. Run server: `uvicorn main:app --reload --port 8000`
+## What's Implemented vs Stubbed
 
-### Frontend Setup
-1. Navigate to frontend directory: `cd frontend`
-2. Install dependencies: `npm install`
-3. Run development server: `npm run dev`
+### Implemented
+- Full evaluation pipeline (upload → transcribe → evaluate → report)
+- JWT authentication with RBAC
+- Deterministic evaluation with explainable scores
+- GA4 analytics tracking
+- Professional dark-mode UI
+- API documentation (Swagger/ReDoc)
+- Audit logging structure
+
+### Stubbed (AWS Ready)
+- Amazon Bedrock LLM calls (using deterministic heuristics)
+- Amazon Transcribe (using sample transcripts)
+- Amazon Rekognition (placeholder metrics)
+- Amazon S3 (local file storage fallback)
+
+### Planned
+- Amazon Cognito migration
+- AWS CloudWatch metrics
+- PDF/CSV report export
+- AWS SES email notifications
+
+---
 
 ## Environment Variables
 
 ### Backend (.env)
-```
-UPLOAD_DIR=./uploads
-MAX_FILE_SIZE=100000000
+```env
+SUPABASE_URL=https://placeholder.supabase.co
+SUPABASE_ANON_KEY=supabase-public-anon-placeholder
+AWS_ACCESS_KEY_ID=aws-access-placeholder
+AWS_SECRET_ACCESS_KEY=aws-secret-placeholder
+AWS_REGION=ap-south-1
+AWS_S3_BUCKET_NAME=mentora-dev-bucket
+AWS_BEDROCK_MODEL_ID=anthropic.claude-3-sonnet-20240229-v1:0
 ```
 
 ### Frontend (.env.local)
+```env
+NEXT_PUBLIC_API_URL=http://localhost:8001
+NEXT_PUBLIC_SUPABASE_URL=https://placeholder.supabase.co
+NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
-NEXT_PUBLIC_API_URL=http://localhost:8000
+
+---
+
+## Running the Project
+
+### Development
+```bash
+# Frontend (Next.js)
+cd frontend && npm install && npm run dev
+
+# Backend (FastAPI)
+cd backend && pip install -r requirements.txt
+uvicorn main:app --reload --port 8001
 ```
 
-## API Endpoints
+### Production Deployment
+- **Frontend:** Vercel
+- **Backend:** AWS EC2 / Lambda + API Gateway
+- **Database:** Supabase → Amazon RDS migration path
 
-- `POST /upload/video` - Upload lecture video
-- `POST /transcribe` - Transcribe audio (placeholder)
-- `POST /evaluate` - Evaluate teaching quality
-- `GET /health` - Health check
+---
 
-## Features
+## For Judges
 
-- Video upload and storage
-- Audio transcription (placeholder)
-- Teaching quality evaluation with scoring
-- Clean, responsive UI
-- Modular, extensible architecture
+This project demonstrates:
 
-## Deployment
+1. **AWS-Native GenAI Architecture**
+   - Bedrock, Transcribe, Rekognition, S3 integrations
+   - All services have clear implementation paths
 
-### Backend (Render/Railway)
-- Ensure `requirements.txt` is up to date
-- Set environment variables in deployment platform
-- Use `uvicorn main:app --host 0.0.0.0 --port $PORT`
+2. **Secure AI Orchestration**
+   - Trust boundaries documented
+   - Prompt injection prevention
+   - Audit trails for compliance
 
-### Frontend (Vercel)
-- Connect GitHub repository
-- Set `NEXT_PUBLIC_API_URL` environment variable
-- Deploy automatically on push
+3. **Explainable AI Decisions**
+   - Every score has reasoning
+   - Deterministic evaluation rubric
+   - Reproducible results
 
-## Note
-This is a hackathon prototype with placeholder AI logic. Real AI implementations will be added later.
+4. **Production Readiness**
+   - RBAC authentication
+   - Error handling
+   - API documentation
+   - Analytics integration
+
+---
+
+## License
+
+MIT License - Built for AWS ImpactX Hackathon 2024

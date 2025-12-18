@@ -1,12 +1,22 @@
 import axios from 'axios';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8001';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
+});
+
+api.interceptors.request.use((config) => {
+  if (typeof window !== 'undefined') {
+    const token = localStorage.getItem('mentora_token');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+  }
+  return config;
 });
 
 export interface UploadResponse {
@@ -35,8 +45,30 @@ export interface EvaluateResponse {
   recommendations: string[];
 }
 
+export interface AuthResponse {
+  access_token: string;
+  token_type: string;
+  user: {
+    id: string;
+    email: string;
+    name: string;
+    role: string;
+    permissions: string[];
+  };
+  expires_in: number;
+}
+
+export interface AWSStatus {
+  aws_region: string;
+  services: Record<string, {
+    status: string;
+    ready_for_production: boolean;
+    description: string;
+  }>;
+  security: Record<string, string>;
+}
+
 export const apiService = {
-  // Upload video file
   uploadVideo: async (file: File): Promise<UploadResponse> => {
     const formData = new FormData();
     formData.append('file', file);
@@ -50,7 +82,6 @@ export const apiService = {
     return response.data;
   },
 
-  // Transcribe video
   transcribeVideo: async (videoPath: string): Promise<TranscribeResponse> => {
     const response = await api.post('/transcribe', {
       video_path: videoPath,
@@ -59,7 +90,6 @@ export const apiService = {
     return response.data;
   },
 
-  // Evaluate teaching
   evaluateTeaching: async (
     transcribedText: string,
     syllabusText: string,
@@ -74,9 +104,70 @@ export const apiService = {
     return response.data;
   },
 
-  // Health check
   healthCheck: async (): Promise<{ status: string; message: string }> => {
     const response = await api.get('/health');
     return response.data;
   },
+
+  getAWSStatus: async (): Promise<AWSStatus> => {
+    const response = await api.get('/aws-status');
+    return response.data;
+  },
+
+  login: async (email: string, password: string): Promise<AuthResponse> => {
+    const response = await api.post('/auth/login', { email, password });
+    if (response.data.access_token) {
+      localStorage.setItem('mentora_token', response.data.access_token);
+      localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
+  register: async (
+    email: string, 
+    password: string, 
+    name: string,
+    role?: string
+  ): Promise<AuthResponse> => {
+    const response = await api.post('/auth/register', { 
+      email, 
+      password, 
+      name,
+      role: role || 'evaluator'
+    });
+    if (response.data.access_token) {
+      localStorage.setItem('mentora_token', response.data.access_token);
+      localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
+  getDemoToken: async (): Promise<AuthResponse> => {
+    const response = await api.post('/auth/demo-token');
+    if (response.data.access_token) {
+      localStorage.setItem('mentora_token', response.data.access_token);
+      localStorage.setItem('mentora_user', JSON.stringify(response.data.user));
+    }
+    return response.data;
+  },
+
+  logout: () => {
+    localStorage.removeItem('mentora_token');
+    localStorage.removeItem('mentora_user');
+  },
+
+  getCurrentUser: () => {
+    if (typeof window !== 'undefined') {
+      const user = localStorage.getItem('mentora_user');
+      return user ? JSON.parse(user) : null;
+    }
+    return null;
+  },
+
+  isAuthenticated: () => {
+    if (typeof window !== 'undefined') {
+      return !!localStorage.getItem('mentora_token');
+    }
+    return false;
+  }
 };
