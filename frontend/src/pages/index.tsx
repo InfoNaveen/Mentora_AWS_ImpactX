@@ -29,6 +29,7 @@ import {
   Play,
   Check,
   Loader2,
+  Settings,
 } from 'lucide-react';
 import {
   RadarChart,
