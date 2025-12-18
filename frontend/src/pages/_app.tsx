@@ -22,7 +22,9 @@ export default function App({ Component, pageProps }: AppProps) {
     <>
       <Head>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <meta name="theme-color" content="#0a0f1c" />
+        <meta name="theme-color" content="#0a0d12" />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
       </Head>
       
       {GA_MEASUREMENT_ID && (
@@ -49,25 +51,50 @@ export default function App({ Component, pageProps }: AppProps) {
       )}
 
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap');
 
         :root {
-          --bg-primary: #0a0f1c;
-          --bg-secondary: #111827;
-          --bg-card: #1a2234;
-          --bg-card-hover: #1f2a40;
-          --accent-primary: #3b82f6;
-          --accent-secondary: #8b5cf6;
-          --accent-success: #10b981;
-          --accent-warning: #f59e0b;
-          --accent-error: #ef4444;
-          --text-primary: #f8fafc;
+          --bg-base: #0a0d12;
+          --bg-surface: #0f1318;
+          --bg-elevated: #151a22;
+          --bg-overlay: #1a1f28;
+          
+          --border-subtle: rgba(255, 255, 255, 0.06);
+          --border-default: rgba(255, 255, 255, 0.1);
+          --border-strong: rgba(255, 255, 255, 0.15);
+          
+          --text-primary: #f1f5f9;
           --text-secondary: #94a3b8;
           --text-muted: #64748b;
-          --border-color: #2d3a4f;
-          --gradient-primary: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-          --gradient-success: linear-gradient(135deg, #10b981 0%, #059669 100%);
-          --shadow-glow: 0 0 40px rgba(59, 130, 246, 0.15);
+          --text-faint: #475569;
+          
+          --accent-blue: #0ea5e9;
+          --accent-indigo: #6366f1;
+          --accent-emerald: #10b981;
+          --accent-amber: #f59e0b;
+          --accent-rose: #ef4444;
+          --accent-violet: #8b5cf6;
+          
+          --gradient-primary: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+          --gradient-success: linear-gradient(135deg, #10b981 0%, #0ea5e9 100%);
+          --gradient-subtle: linear-gradient(135deg, rgba(14, 165, 233, 0.08) 0%, rgba(99, 102, 241, 0.08) 100%);
+          
+          --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+          --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+          --shadow-lg: 0 10px 40px rgba(0, 0, 0, 0.5);
+          --shadow-glow-blue: 0 0 30px rgba(14, 165, 233, 0.2);
+          
+          --radius-sm: 6px;
+          --radius-md: 8px;
+          --radius-lg: 12px;
+          --radius-xl: 16px;
+          
+          --spacing-xs: 4px;
+          --spacing-sm: 8px;
+          --spacing-md: 16px;
+          --spacing-lg: 24px;
+          --spacing-xl: 32px;
+          --spacing-2xl: 48px;
         }
 
         * {
@@ -76,57 +103,105 @@ export default function App({ Component, pageProps }: AppProps) {
           padding: 0;
         }
 
+        html {
+          font-size: 16px;
+          -webkit-font-smoothing: antialiased;
+          -moz-osx-font-smoothing: grayscale;
+        }
+
         body {
-          font-family: 'Outfit', -apple-system, BlinkMacSystemFont, sans-serif;
-          line-height: 1.6;
+          font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+          line-height: 1.5;
           color: var(--text-primary);
-          background: var(--bg-primary);
+          background: var(--bg-base);
           min-height: 100vh;
         }
 
         ::selection {
-          background: var(--accent-primary);
+          background: var(--accent-blue);
           color: white;
         }
 
-        .container {
-          max-width: 1280px;
-          margin: 0 auto;
-          padding: 24px;
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+
+        ::-webkit-scrollbar-thumb {
+          background: var(--border-default);
+          border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+          background: var(--border-strong);
         }
 
         h1, h2, h3, h4, h5, h6 {
           font-weight: 600;
           letter-spacing: -0.02em;
+          line-height: 1.3;
         }
 
+        h1 { font-size: 28px; }
+        h2 { font-size: 22px; }
+        h3 { font-size: 16px; }
+        h4 { font-size: 14px; }
+
         code, .mono {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'JetBrains Mono', 'Fira Code', monospace;
         }
 
         button {
           font-family: inherit;
           cursor: pointer;
-          transition: all 0.2s ease;
+          border: none;
+          background: transparent;
+          transition: all 0.15s ease;
         }
 
         button:disabled {
           cursor: not-allowed;
-          opacity: 0.6;
+          opacity: 0.5;
         }
 
-        input, textarea {
+        input, textarea, select {
           font-family: inherit;
+          font-size: inherit;
+        }
+
+        a {
+          color: var(--accent-blue);
+          text-decoration: none;
+          transition: color 0.15s ease;
+        }
+
+        a:hover {
+          color: var(--text-primary);
         }
 
         @keyframes fadeIn {
-          from { opacity: 0; transform: translateY(10px); }
+          from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(-8px); }
+          to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
+        }
+
+        @keyframes spin {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
         }
 
         @keyframes shimmer {
@@ -135,11 +210,34 @@ export default function App({ Component, pageProps }: AppProps) {
         }
 
         .animate-fade-in {
-          animation: fadeIn 0.5s ease forwards;
+          animation: fadeIn 0.3s ease forwards;
+        }
+
+        .animate-slide-in {
+          animation: slideIn 0.3s ease forwards;
         }
 
         .animate-pulse {
           animation: pulse 2s ease-in-out infinite;
+        }
+
+        .animate-spin {
+          animation: spin 1s linear infinite;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          *, ::before, ::after {
+            animation-duration: 0.01ms !important;
+            animation-iteration-count: 1 !important;
+            transition-duration: 0.01ms !important;
+          }
+        }
+
+        @media print {
+          body {
+            background: white;
+            color: black;
+          }
         }
       `}</style>
       <Component {...pageProps} />
