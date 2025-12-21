@@ -2,47 +2,38 @@
 Mentora Configuration Module
 ============================
 Centralized configuration with AWS-first design principles.
-
-AWS MIGRATION PATH:
-- Secrets → AWS Secrets Manager
-- Feature flags → AWS AppConfig
-- Environment-specific → AWS Parameter Store
 """
 import os
-from typing import List, Optional
-from pydantic import BaseSettings
+from typing import List
 
 
-class Settings(BaseSettings):
-    APP_ENV: str = "development"
-    DEBUG: bool = True
-    
-    SUPABASE_URL: str = ""
-    SUPABASE_ANON_KEY: str = ""
-    SUPABASE_SERVICE_ROLE_KEY: str = ""
-    
-    AWS_ACCESS_KEY_ID: str = ""
-    AWS_SECRET_ACCESS_KEY: str = ""
-    AWS_REGION: str = "ap-south-1"
-    AWS_S3_BUCKET_NAME: str = ""
-    AWS_BEDROCK_MODEL_ID: str = "anthropic.claude-3-sonnet-20240229-v1:0"
-    AWS_TRANSCRIBE_LANGUAGE_CODE: str = "en-US"
-    
-    JWT_SECRET_KEY: str = "mentora-jwt-secret-development-only"
-    JWT_ALGORITHM: str = "HS256"
-    JWT_EXPIRATION_HOURS: int = 24
-    
-    CORS_ORIGINS: str = "http://localhost:3000,http://localhost:3001"
-    
-    UPLOAD_DIR: str = "./uploads"
-    MAX_FILE_SIZE: int = 100000000
-    
-    RATE_LIMIT_REQUESTS_PER_MINUTE: int = 60
-    ENABLE_TELEMETRY: bool = True
-    
-    class Config:
-        env_file = ".env"
-        case_sensitive = True
+class Settings:
+    def __init__(self):
+        self.APP_ENV = os.getenv("APP_ENV", "development")
+        self.DEBUG = os.getenv("DEBUG", "true").lower() == "true"
+        
+        self.SUPABASE_URL = os.getenv("SUPABASE_URL", "")
+        self.SUPABASE_ANON_KEY = os.getenv("SUPABASE_ANON_KEY", "")
+        self.SUPABASE_SERVICE_ROLE_KEY = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "")
+        
+        self.AWS_ACCESS_KEY_ID = os.getenv("AWS_ACCESS_KEY_ID", "")
+        self.AWS_SECRET_ACCESS_KEY = os.getenv("AWS_SECRET_ACCESS_KEY", "")
+        self.AWS_REGION = os.getenv("AWS_REGION", "ap-south-1")
+        self.AWS_S3_BUCKET_NAME = os.getenv("AWS_S3_BUCKET_NAME", "")
+        self.AWS_BEDROCK_MODEL_ID = os.getenv("AWS_BEDROCK_MODEL_ID", "anthropic.claude-3-sonnet-20240229-v1:0")
+        self.AWS_TRANSCRIBE_LANGUAGE_CODE = os.getenv("AWS_TRANSCRIBE_LANGUAGE_CODE", "en-US")
+        
+        self.JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "mentora-jwt-secret-development-only")
+        self.JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
+        self.JWT_EXPIRATION_HOURS = int(os.getenv("JWT_EXPIRATION_HOURS", "24"))
+        
+        self.CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://localhost:3000,http://localhost:3001")
+        
+        self.UPLOAD_DIR = os.getenv("UPLOAD_DIR", "./uploads")
+        self.MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", "100000000"))
+        
+        self.RATE_LIMIT_REQUESTS_PER_MINUTE = int(os.getenv("RATE_LIMIT_REQUESTS_PER_MINUTE", "60"))
+        self.ENABLE_TELEMETRY = os.getenv("ENABLE_TELEMETRY", "true").lower() == "true"
     
     @property
     def cors_origins_list(self) -> List[str]:

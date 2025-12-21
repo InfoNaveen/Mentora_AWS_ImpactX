@@ -18,6 +18,7 @@ import {
   Activity,
 } from 'lucide-react';
 import { trackNavigation } from '../lib/analytics';
+import { AWSButton } from './AWSButton';
 
 type NavItem = {
   id: string;
@@ -204,16 +205,16 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
         .layout {
           display: flex;
           min-height: 100vh;
-          background: #0a0d12;
+          background: var(--bg-base);
         }
 
         .sidebar {
           width: 260px;
-          background: #0f1318;
-          border-right: 1px solid rgba(255,255,255,0.06);
+          background: var(--bg-surface);
+          border-right: 1px solid var(--border-subtle);
           display: flex;
           flex-direction: column;
-          transition: width 0.2s ease;
+          transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           position: fixed;
           top: 0;
           left: 0;
@@ -222,12 +223,12 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
         }
 
         .sidebar.collapsed {
-          width: 64px;
+          width: 68px;
         }
 
         .sidebar-header {
           padding: 20px 16px;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          border-bottom: 1px solid var(--border-subtle);
           display: flex;
           align-items: center;
           justify-content: space-between;
@@ -244,13 +245,14 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
         .logo-mark {
           width: 36px;
           height: 36px;
-          background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
-          border-radius: 8px;
+          background: var(--gradient-primary);
+          border-radius: var(--radius-md);
           display: flex;
           align-items: center;
           justify-content: center;
           color: white;
           flex-shrink: 0;
+          box-shadow: var(--shadow-glow-blue);
         }
 
         .logo-text {
@@ -261,24 +263,25 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
 
         .logo-title {
           font-size: 16px;
-          font-weight: 600;
-          color: #f1f5f9;
+          font-weight: 700;
+          color: var(--text-primary);
           letter-spacing: -0.02em;
         }
 
         .logo-subtitle {
-          font-size: 11px;
-          color: #64748b;
-          letter-spacing: 0.02em;
+          font-size: 10px;
+          color: var(--text-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
         }
 
         .collapse-btn {
           width: 28px;
           height: 28px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 6px;
-          color: #64748b;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-sm);
+          color: var(--text-muted);
           display: flex;
           align-items: center;
           justify-content: center;
@@ -287,8 +290,9 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
         }
 
         .collapse-btn:hover {
-          background: rgba(255,255,255,0.08);
-          color: #f1f5f9;
+          background: rgba(255, 255, 255, 0.06);
+          color: var(--text-primary);
+          border-color: var(--border-strong);
         }
 
         .sidebar-nav {
@@ -305,9 +309,9 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
           display: block;
           font-size: 10px;
           font-weight: 600;
-          color: #475569;
+          color: var(--text-faint);
           text-transform: uppercase;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.1em;
           padding: 0 12px;
           margin-bottom: 8px;
         }
@@ -320,29 +324,30 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
           padding: 10px 12px;
           background: transparent;
           border: none;
-          border-radius: 6px;
-          color: #94a3b8;
+          border-radius: var(--radius-md);
+          color: var(--text-secondary);
           font-size: 13px;
-          font-weight: 450;
+          font-weight: 500;
           cursor: pointer;
-          transition: all 0.15s;
+          transition: all 0.15s ease;
           position: relative;
           text-align: left;
         }
 
         .sidebar.collapsed .nav-item {
           justify-content: center;
-          padding: 10px;
+          padding: 12px;
         }
 
         .nav-item:hover {
-          background: rgba(255,255,255,0.04);
-          color: #f1f5f9;
+          background: rgba(255, 255, 255, 0.04);
+          color: var(--text-primary);
         }
 
         .nav-item.active {
-          background: rgba(14, 165, 233, 0.1);
-          color: #0ea5e9;
+          background: rgba(14, 165, 233, 0.08);
+          color: var(--accent-blue);
+          border: 1px solid rgba(14, 165, 233, 0.1);
         }
 
         .nav-icon {
@@ -358,42 +363,44 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
 
         .nav-indicator {
           position: absolute;
-          right: 8px;
+          right: 12px;
           width: 4px;
           height: 4px;
-          background: #0ea5e9;
+          background: var(--accent-blue);
           border-radius: 50%;
+          box-shadow: 0 0 8px var(--accent-blue);
         }
 
         .sidebar-footer {
           padding: 16px;
-          border-top: 1px solid rgba(255,255,255,0.06);
+          background: rgba(0, 0, 0, 0.2);
+          border-top: 1px solid var(--border-subtle);
         }
 
         .system-status {
           display: flex;
           flex-direction: column;
-          gap: 8px;
+          gap: 10px;
         }
 
         .status-row {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 10px;
           font-size: 11px;
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         .status-dot {
           width: 6px;
           height: 6px;
           border-radius: 50%;
-          background: #475569;
+          background: var(--text-faint);
           margin-left: auto;
         }
 
         .status-dot.active {
-          background: #10b981;
+          background: var(--accent-emerald);
           box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
         }
 
@@ -403,24 +410,25 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
           display: flex;
           flex-direction: column;
           min-height: 100vh;
-          transition: margin-left 0.2s ease;
+          transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         .sidebar.collapsed ~ .main-wrapper {
-          margin-left: 64px;
+          margin-left: 68px;
         }
 
         .topbar {
-          height: 56px;
-          background: #0f1318;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          height: 64px;
+          background: var(--bg-surface);
+          border-bottom: 1px solid var(--border-subtle);
           display: flex;
           align-items: center;
           justify-content: space-between;
-          padding: 0 24px;
+          padding: 0 32px;
           position: sticky;
           top: 0;
           z-index: 50;
+          backdrop-filter: blur(12px);
         }
 
         .topbar-left {
@@ -431,61 +439,67 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
         .breadcrumbs {
           display: flex;
           align-items: center;
-          gap: 6px;
+          gap: 8px;
           font-size: 13px;
         }
 
         .breadcrumb-root {
-          color: #64748b;
+          color: var(--text-muted);
           font-family: 'JetBrains Mono', monospace;
-          font-size: 12px;
+          font-size: 11px;
+          background: rgba(255, 255, 255, 0.04);
+          padding: 2px 8px;
+          border-radius: 4px;
         }
 
         .breadcrumb-sep {
-          color: #334155;
+          color: var(--text-faint);
         }
 
         .breadcrumb-item {
-          color: #64748b;
+          color: var(--text-secondary);
         }
 
         .breadcrumb-current {
-          color: #f1f5f9;
-          font-weight: 500;
+          color: var(--text-primary);
+          font-weight: 600;
         }
 
         .topbar-right {
           display: flex;
           align-items: center;
-          gap: 16px;
+          gap: 20px;
         }
 
         .region-selector {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 6px 12px;
-          background: rgba(255,255,255,0.04);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 6px;
-          color: #94a3b8;
+          gap: 10px;
+          padding: 8px 14px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid var(--border-default);
+          border-radius: var(--radius-md);
+          color: var(--text-secondary);
           font-size: 12px;
           cursor: pointer;
           position: relative;
-          transition: all 0.15s;
+          transition: all 0.15s ease;
         }
 
         .region-selector:hover {
-          background: rgba(255,255,255,0.06);
-          border-color: rgba(255,255,255,0.12);
+          background: rgba(255, 255, 255, 0.06);
+          border-color: var(--border-strong);
+          color: var(--text-primary);
         }
 
         .region-code {
           font-family: 'JetBrains Mono', monospace;
+          font-weight: 500;
         }
 
         .region-chevron {
           transition: transform 0.2s;
+          color: var(--text-faint);
         }
 
         .region-chevron.open {
@@ -496,30 +510,32 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
           position: absolute;
           top: calc(100% + 8px);
           right: 0;
-          width: 220px;
-          background: #1a1f28;
-          border: 1px solid rgba(255,255,255,0.1);
-          border-radius: 8px;
+          width: 240px;
+          background: var(--bg-overlay);
+          border: 1px solid var(--border-strong);
+          border-radius: var(--radius-lg);
           overflow: hidden;
-          box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+          box-shadow: var(--shadow-lg);
+          animation: fadeIn 0.15s ease-out;
         }
 
         .region-dropdown-header {
-          padding: 10px 14px;
-          font-size: 11px;
-          font-weight: 600;
-          color: #64748b;
+          padding: 12px 16px;
+          font-size: 10px;
+          font-weight: 700;
+          color: var(--text-faint);
           text-transform: uppercase;
-          letter-spacing: 0.05em;
-          border-bottom: 1px solid rgba(255,255,255,0.06);
+          letter-spacing: 0.1em;
+          border-bottom: 1px solid var(--border-subtle);
+          background: rgba(0, 0, 0, 0.2);
         }
 
         .region-option {
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 4px;
           width: 100%;
-          padding: 10px 14px;
+          padding: 12px 16px;
           background: transparent;
           border: none;
           text-align: left;
@@ -528,57 +544,70 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
         }
 
         .region-option:hover {
-          background: rgba(255,255,255,0.04);
+          background: rgba(255, 255, 255, 0.04);
         }
 
         .region-option.selected {
-          background: rgba(14, 165, 233, 0.1);
+          background: rgba(14, 165, 233, 0.08);
         }
 
         .region-option-code {
           font-family: 'JetBrains Mono', monospace;
           font-size: 12px;
-          color: #f1f5f9;
+          color: var(--text-primary);
+          font-weight: 500;
         }
 
         .region-option-name {
           font-size: 11px;
-          color: #64748b;
+          color: var(--text-muted);
         }
 
         .user-info {
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 6px 12px;
-          background: rgba(255,255,255,0.04);
-          border-radius: 6px;
+          gap: 12px;
+          padding: 6px 14px;
+          background: rgba(255, 255, 255, 0.03);
+          border: 1px solid var(--border-subtle);
+          border-radius: var(--radius-md);
         }
 
         .user-role {
           padding: 3px 8px;
-          background: linear-gradient(135deg, #0ea5e9 0%, #6366f1 100%);
+          background: var(--gradient-primary);
           border-radius: 4px;
           font-size: 10px;
-          font-weight: 600;
+          font-weight: 700;
           color: white;
           text-transform: uppercase;
-          letter-spacing: 0.03em;
+          letter-spacing: 0.05em;
+          box-shadow: 0 2px 6px rgba(14, 165, 233, 0.2);
         }
 
         .user-email {
           font-size: 12px;
-          color: #94a3b8;
+          color: var(--text-secondary);
+          font-weight: 500;
         }
 
         .main-content {
           flex: 1;
-          padding: 32px;
+          padding: 48px;
+          max-width: 1600px;
+          margin: 0 auto;
+          width: 100%;
+        }
+
+        @media (max-width: 1200px) {
+          .main-content {
+            padding: 32px;
+          }
         }
 
         @media (max-width: 1024px) {
           .sidebar {
-            width: 64px;
+            width: 68px;
           }
 
           .sidebar .logo-text,
@@ -591,11 +620,11 @@ export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcr
 
           .sidebar .nav-item {
             justify-content: center;
-            padding: 10px;
+            padding: 12px;
           }
 
           .main-wrapper {
-            margin-left: 64px;
+            margin-left: 68px;
           }
         }
       `}</style>
