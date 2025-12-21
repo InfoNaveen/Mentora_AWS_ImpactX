@@ -1,3 +1,6 @@
+"""
+Request Models
+"""
 from pydantic import BaseModel
 from typing import Optional
 
@@ -8,3 +11,4 @@ class EvaluateRequest(BaseModel):
     transcribed_text: str
     syllabus_text: str
     teaching_objectives: Optional[str] = None
+

@@ -1,5 +1,8 @@
+"""
+Response Models
+"""
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, List
 
 class UploadResponse(BaseModel):
     message: str
@@ -16,13 +19,20 @@ class EvaluationScore(BaseModel):
     engagement_score: float
     concept_coverage_score: float
     clarity_score: float
+    pedagogy_score: float
     overall_score: float
 
 class EvaluateResponse(BaseModel):
     scores: EvaluationScore
-    summary: str
-    recommendations: list
+    reasoning: List[str]
+    improvements: List[str]
 
 class HealthResponse(BaseModel):
     status: str
     message: str
+
+class AWSStatusResponse(BaseModel):
+    aws_region: str
+    services: dict
+    status: str
+

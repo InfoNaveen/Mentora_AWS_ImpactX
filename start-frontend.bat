@@ -1,5 +1,8 @@
 @echo off
 echo Starting Mentora Frontend...
 cd frontend
-npm install
+if not exist node_modules (
+    npm install
+)
 npm run dev
+
