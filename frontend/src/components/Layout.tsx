@@ -1,633 +1,180 @@
-'use client';
-
-import React, { useState, useEffect } from 'react';
-import {
-  LayoutDashboard,
-  PlayCircle,
-  BarChart3,
-  Settings,
-  FileText,
-  ChevronRight,
-  Globe,
+import React, { useState } from 'react';
+import Head from 'next/head';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { 
+  BarChart2, 
+  LayoutDashboard, 
+  Settings, 
+  HelpCircle, 
+  Bell, 
+  User, 
+  Search,
   ChevronDown,
+  Globe,
   Menu,
   X,
-  Database,
-  Cloud,
-  Shield,
-  Activity,
+  Plus
 } from 'lucide-react';
-import { trackNavigation } from '../lib/analytics';
-import { AWSButton } from './AWSButton';
 
-type NavItem = {
-  id: string;
-  label: string;
-  icon: React.ReactNode;
-  active?: boolean;
-};
-
-type LayoutProps = {
+interface LayoutProps {
   children: React.ReactNode;
-  activeNav?: string;
-  onNavChange?: (id: string) => void;
-  breadcrumbs?: string[];
-  user?: { role: string; email: string } | null;
-};
+  title?: string;
+}
 
-export function Layout({ children, activeNav = 'dashboard', onNavChange, breadcrumbs = ['Dashboard'], user }: LayoutProps) {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const [regionOpen, setRegionOpen] = useState(false);
-  const [selectedRegion, setSelectedRegion] = useState('ap-south-1');
+export const Layout = ({ children, title = 'Mentora' }: LayoutProps) => {
+  const router = useRouter();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-  const navItems: NavItem[] = [
-    { id: 'dashboard', label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-    { id: 'evaluate', label: 'New Evaluation', icon: <PlayCircle size={18} /> },
-    { id: 'reports', label: 'Reports', icon: <BarChart3 size={18} /> },
-    { id: 'resources', label: 'Resources', icon: <Database size={18} /> },
+  const navItems = [
+    { name: 'Dashboard', icon: LayoutDashboard, path: '/' },
+    { name: 'Evaluations', icon: BarChart2, path: '/evaluations' },
+    { name: 'Settings', icon: Settings, path: '/settings' },
   ];
-
-  const regions = [
-    { code: 'ap-south-1', name: 'Asia Pacific (Mumbai)' },
-    { code: 'us-east-1', name: 'US East (N. Virginia)' },
-    { code: 'eu-west-1', name: 'Europe (Ireland)' },
-  ];
-
-  const handleNavClick = (id: string) => {
-    trackNavigation(id);
-    onNavChange?.(id);
-  };
-
-  useEffect(() => {
-    const handleClickOutside = () => setRegionOpen(false);
-    if (regionOpen) {
-      document.addEventListener('click', handleClickOutside);
-      return () => document.removeEventListener('click', handleClickOutside);
-    }
-  }, [regionOpen]);
 
   return (
-    <div className="layout">
-      <aside className={`sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}>
-        <div className="sidebar-header">
-          <div className="logo">
-            <div className="logo-mark">
-              <Cloud size={20} />
-            </div>
-            {!sidebarCollapsed && (
-              <div className="logo-text">
-                <span className="logo-title">Mentora</span>
-                <span className="logo-subtitle">Teaching Intelligence</span>
-              </div>
-            )}
-          </div>
+    <div className="min-h-screen bg-[#0a0d12] flex flex-col text-[#f1f5f9]">
+      <Head>
+        <title>{title} | Mentora AI</title>
+      </Head>
+
+      {/* Top Navbar */}
+      <header className="h-14 bg-[#151a22] border-b border-[#2d3748] flex items-center justify-between px-4 sticky top-0 z-50">
+        <div className="flex items-center gap-4">
           <button 
-            className="collapse-btn"
-            onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
-            aria-label="Toggle sidebar"
+            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            className="p-1.5 hover:bg-white/5 rounded text-[#94a3b8]"
           >
-            {sidebarCollapsed ? <Menu size={16} /> : <X size={16} />}
+            <Menu size={20} />
           </button>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 bg-[#1a73e8] rounded flex items-center justify-center font-bold text-white text-sm">M</div>
+            <span className="font-semibold text-lg tracking-tight">Mentora</span>
+          </div>
+          
+          <div className="ml-8 flex items-center bg-[#0a0d12] border border-[#2d3748] rounded px-3 py-1 gap-2 w-80">
+            <Search size={16} className="text-[#64748b]" />
+            <input 
+              type="text" 
+              placeholder="Search services, resources, docs" 
+              className="bg-transparent border-none outline-none text-sm w-full py-0.5 text-[#f1f5f9]"
+            />
+          </div>
         </div>
 
-        <nav className="sidebar-nav">
-          <div className="nav-section">
-            {!sidebarCollapsed && <span className="nav-section-label">Main</span>}
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 px-3 py-1.5 hover:bg-white/5 rounded transition-colors cursor-pointer">
+            <Globe size={16} className="text-[#94a3b8]" />
+            <span className="text-xs font-medium">ap-south-1</span>
+            <ChevronDown size={14} className="text-[#94a3b8]" />
+          </div>
+          
+          <div className="flex items-center gap-3 border-l border-[#2d3748] pl-4">
+            <button className="p-1.5 hover:bg-white/5 rounded text-[#94a3b8] relative">
+              <Bell size={18} />
+              <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-[#ef4444] rounded-full border border-[#151a22]"></span>
+            </button>
+            <button className="p-1.5 hover:bg-white/5 rounded text-[#94a3b8]">
+              <HelpCircle size={18} />
+            </button>
+            <div className="flex items-center gap-2 px-2 py-1.5 hover:bg-white/5 rounded transition-colors cursor-pointer">
+              <div className="w-6 h-6 bg-[#64748b] rounded-full flex items-center justify-center">
+                <User size={14} className="text-white" />
+              </div>
+              <span className="text-sm font-medium">Patil @ mentora-prod</span>
+              <ChevronDown size={14} className="text-[#94a3b8]" />
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex flex-1 overflow-hidden">
+        {/* Sidebar */}
+        <aside className={`${isSidebarOpen ? 'w-64' : 'w-0'} transition-all duration-200 bg-[#151a22] border-r border-[#2d3748] flex flex-col overflow-hidden`}>
+          <div className="p-4">
+            <button className="w-full bg-[#1a73e8] hover:bg-[#1557b0] text-white rounded py-2 px-4 text-sm font-medium flex items-center justify-center gap-2 shadow-lg shadow-blue-900/20">
+              <Plus size={16} />
+              <span>New Evaluation</span>
+            </button>
+          </div>
+          
+          <nav className="flex-1 px-2 py-2 space-y-1">
+            <div className="px-3 py-2 text-[11px] font-bold text-[#64748b] uppercase tracking-wider">Main</div>
             {navItems.map((item) => (
-              <button
-                key={item.id}
-                className={`nav-item ${activeNav === item.id ? 'active' : ''}`}
-                onClick={() => handleNavClick(item.id)}
-                title={sidebarCollapsed ? item.label : undefined}
+              <Link 
+                key={item.path} 
+                href={item.path}
+                className={`
+                  flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium transition-colors
+                  ${router.pathname === item.path 
+                    ? 'bg-[#1a73e8]/10 text-[#1a73e8] border-l-2 border-[#1a73e8] rounded-l-none' 
+                    : 'text-[#94a3b8] hover:bg-white/5 hover:text-[#f1f5f9]'}
+                `}
               >
-                <span className="nav-icon">{item.icon}</span>
-                {!sidebarCollapsed && <span className="nav-label">{item.label}</span>}
-                {!sidebarCollapsed && activeNav === item.id && (
-                  <span className="nav-indicator" />
-                )}
-              </button>
+                <item.icon size={18} />
+                <span>{item.name}</span>
+              </Link>
             ))}
-          </div>
+            
+            <div className="pt-4 px-3 py-2 text-[11px] font-bold text-[#64748b] uppercase tracking-wider">Resources</div>
+            <a href="#" className="flex items-center gap-3 px-3 py-2.5 rounded text-sm font-medium text-[#94a3b8] hover:bg-white/5 hover:text-[#f1f5f9]">
+              <BarChart2 size={18} />
+              <span>Analytics</span>
+            </a>
+          </nav>
 
-          <div className="nav-section">
-            {!sidebarCollapsed && <span className="nav-section-label">System</span>}
-            <button 
-              className="nav-item"
-              onClick={() => handleNavClick('settings')}
-              title={sidebarCollapsed ? 'Settings' : undefined}
-            >
-              <span className="nav-icon"><Settings size={18} /></span>
-              {!sidebarCollapsed && <span className="nav-label">Settings</span>}
-            </button>
-            <button 
-              className="nav-item"
-              onClick={() => window.open('/docs', '_blank')}
-              title={sidebarCollapsed ? 'API Docs' : undefined}
-            >
-              <span className="nav-icon"><FileText size={18} /></span>
-              {!sidebarCollapsed && <span className="nav-label">API Docs</span>}
-            </button>
-          </div>
-        </nav>
-
-        {!sidebarCollapsed && (
-          <div className="sidebar-footer">
-            <div className="system-status">
-              <div className="status-row">
-                <Shield size={12} />
-                <span>Secure Connection</span>
-                <span className="status-dot active" />
-              </div>
-              <div className="status-row">
-                <Activity size={12} />
-                <span>All Services</span>
-                <span className="status-dot active" />
+          <div className="p-4 border-t border-[#2d3748]">
+            <div className="bg-[#0a0d12] rounded p-3 text-[11px] border border-[#2d3748]">
+              <div className="text-[#64748b] mb-1">Current Active Session</div>
+              <div className="text-[#f1f5f9] font-mono">mentora-prod-ap-south-1</div>
+              <div className="flex items-center gap-1.5 mt-2">
+                <span className="w-1.5 h-1.5 bg-[#10b981] rounded-full"></span>
+                <span className="text-[#10b981]">Healthy</span>
               </div>
             </div>
           </div>
-        )}
-      </aside>
+        </aside>
 
-      <div className="main-wrapper">
-        <header className="topbar">
-          <div className="topbar-left">
-            <div className="breadcrumbs">
-              <span className="breadcrumb-root">mentora-prod-{selectedRegion}</span>
-              {breadcrumbs.map((crumb, idx) => (
-                <React.Fragment key={idx}>
-                  <ChevronRight size={14} className="breadcrumb-sep" />
-                  <span className={idx === breadcrumbs.length - 1 ? 'breadcrumb-current' : 'breadcrumb-item'}>
-                    {crumb}
-                  </span>
-                </React.Fragment>
-              ))}
-            </div>
+        {/* Main Content Area */}
+        <main className="flex-1 overflow-y-auto relative bg-[#0a0d12]">
+          {/* Breadcrumbs */}
+          <div className="h-10 bg-[#151a22] border-b border-[#2d3748] flex items-center px-6 text-xs gap-2">
+            <span className="text-[#64748b]">mentora-prod-ap-south-1</span>
+            <span className="text-[#475569]">/</span>
+            <span className="text-[#f1f5f9]">Dashboard</span>
           </div>
 
-          <div className="topbar-right">
-            <div className="region-selector" onClick={(e) => { e.stopPropagation(); setRegionOpen(!regionOpen); }}>
-              <Globe size={14} />
-              <span className="region-code">{selectedRegion}</span>
-              <ChevronDown size={14} className={`region-chevron ${regionOpen ? 'open' : ''}`} />
-              
-              {regionOpen && (
-                <div className="region-dropdown">
-                  <div className="region-dropdown-header">Select Region</div>
-                  {regions.map((region) => (
-                    <button
-                      key={region.code}
-                      className={`region-option ${selectedRegion === region.code ? 'selected' : ''}`}
-                      onClick={() => { setSelectedRegion(region.code); setRegionOpen(false); }}
-                    >
-                      <span className="region-option-code">{region.code}</span>
-                      <span className="region-option-name">{region.name}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            {user && (
-              <div className="user-info">
-                <div className="user-role">{user.role}</div>
-                <span className="user-email">{user.email}</span>
-              </div>
-            )}
+          <div className="p-8 max-w-7xl mx-auto">
+            {children}
           </div>
-        </header>
-
-        <main className="main-content">
-          {children}
         </main>
       </div>
 
-      <style jsx>{`
-        .layout {
-          display: flex;
-          min-height: 100vh;
-          background: var(--bg-base);
+      <style jsx global>{`
+        body {
+          margin: 0;
+          font-family: 'Inter', sans-serif;
+          background-color: #0a0d12;
         }
-
-        .sidebar {
-          width: 260px;
-          background: var(--bg-surface);
-          border-right: 1px solid var(--border-subtle);
-          display: flex;
-          flex-direction: column;
-          transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          position: fixed;
-          top: 0;
-          left: 0;
-          height: 100vh;
-          z-index: 100;
+        
+        ::-webkit-scrollbar {
+          width: 8px;
+          height: 8px;
         }
-
-        .sidebar.collapsed {
-          width: 68px;
+        
+        ::-webkit-scrollbar-track {
+          background: #0a0d12;
         }
-
-        .sidebar-header {
-          padding: 20px 16px;
-          border-bottom: 1px solid var(--border-subtle);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          min-height: 72px;
-        }
-
-        .logo {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          overflow: hidden;
-        }
-
-        .logo-mark {
-          width: 36px;
-          height: 36px;
-          background: var(--gradient-primary);
-          border-radius: var(--radius-md);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: white;
-          flex-shrink: 0;
-          box-shadow: var(--shadow-glow-blue);
-        }
-
-        .logo-text {
-          display: flex;
-          flex-direction: column;
-          white-space: nowrap;
-        }
-
-        .logo-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: var(--text-primary);
-          letter-spacing: -0.02em;
-        }
-
-        .logo-subtitle {
-          font-size: 10px;
-          color: var(--text-muted);
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-
-        .collapse-btn {
-          width: 28px;
-          height: 28px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-sm);
-          color: var(--text-muted);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-
-        .collapse-btn:hover {
-          background: rgba(255, 255, 255, 0.06);
-          color: var(--text-primary);
-          border-color: var(--border-strong);
-        }
-
-        .sidebar-nav {
-          flex: 1;
-          padding: 16px 12px;
-          overflow-y: auto;
-        }
-
-        .nav-section {
-          margin-bottom: 24px;
-        }
-
-        .nav-section-label {
-          display: block;
-          font-size: 10px;
-          font-weight: 600;
-          color: var(--text-faint);
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          padding: 0 12px;
-          margin-bottom: 8px;
-        }
-
-        .nav-item {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          width: 100%;
-          padding: 10px 12px;
-          background: transparent;
-          border: none;
-          border-radius: var(--radius-md);
-          color: var(--text-secondary);
-          font-size: 13px;
-          font-weight: 500;
-          cursor: pointer;
-          transition: all 0.15s ease;
-          position: relative;
-          text-align: left;
-        }
-
-        .sidebar.collapsed .nav-item {
-          justify-content: center;
-          padding: 12px;
-        }
-
-        .nav-item:hover {
-          background: rgba(255, 255, 255, 0.04);
-          color: var(--text-primary);
-        }
-
-        .nav-item.active {
-          background: rgba(14, 165, 233, 0.08);
-          color: var(--accent-blue);
-          border: 1px solid rgba(14, 165, 233, 0.1);
-        }
-
-        .nav-icon {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-
-        .nav-label {
-          white-space: nowrap;
-        }
-
-        .nav-indicator {
-          position: absolute;
-          right: 12px;
-          width: 4px;
-          height: 4px;
-          background: var(--accent-blue);
-          border-radius: 50%;
-          box-shadow: 0 0 8px var(--accent-blue);
-        }
-
-        .sidebar-footer {
-          padding: 16px;
-          background: rgba(0, 0, 0, 0.2);
-          border-top: 1px solid var(--border-subtle);
-        }
-
-        .system-status {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-        }
-
-        .status-row {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          font-size: 11px;
-          color: var(--text-muted);
-        }
-
-        .status-dot {
-          width: 6px;
-          height: 6px;
-          border-radius: 50%;
-          background: var(--text-faint);
-          margin-left: auto;
-        }
-
-        .status-dot.active {
-          background: var(--accent-emerald);
-          box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
-        }
-
-        .main-wrapper {
-          flex: 1;
-          margin-left: 260px;
-          display: flex;
-          flex-direction: column;
-          min-height: 100vh;
-          transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        .sidebar.collapsed ~ .main-wrapper {
-          margin-left: 68px;
-        }
-
-        .topbar {
-          height: 64px;
-          background: var(--bg-surface);
-          border-bottom: 1px solid var(--border-subtle);
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0 32px;
-          position: sticky;
-          top: 0;
-          z-index: 50;
-          backdrop-filter: blur(12px);
-        }
-
-        .topbar-left {
-          display: flex;
-          align-items: center;
-        }
-
-        .breadcrumbs {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 13px;
-        }
-
-        .breadcrumb-root {
-          color: var(--text-muted);
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 11px;
-          background: rgba(255, 255, 255, 0.04);
-          padding: 2px 8px;
+        
+        ::-webkit-scrollbar-thumb {
+          background: #2d3748;
           border-radius: 4px;
         }
-
-        .breadcrumb-sep {
-          color: var(--text-faint);
-        }
-
-        .breadcrumb-item {
-          color: var(--text-secondary);
-        }
-
-        .breadcrumb-current {
-          color: var(--text-primary);
-          font-weight: 600;
-        }
-
-        .topbar-right {
-          display: flex;
-          align-items: center;
-          gap: 20px;
-        }
-
-        .region-selector {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          padding: 8px 14px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--border-default);
-          border-radius: var(--radius-md);
-          color: var(--text-secondary);
-          font-size: 12px;
-          cursor: pointer;
-          position: relative;
-          transition: all 0.15s ease;
-        }
-
-        .region-selector:hover {
-          background: rgba(255, 255, 255, 0.06);
-          border-color: var(--border-strong);
-          color: var(--text-primary);
-        }
-
-        .region-code {
-          font-family: 'JetBrains Mono', monospace;
-          font-weight: 500;
-        }
-
-        .region-chevron {
-          transition: transform 0.2s;
-          color: var(--text-faint);
-        }
-
-        .region-chevron.open {
-          transform: rotate(180deg);
-        }
-
-        .region-dropdown {
-          position: absolute;
-          top: calc(100% + 8px);
-          right: 0;
-          width: 240px;
-          background: var(--bg-overlay);
-          border: 1px solid var(--border-strong);
-          border-radius: var(--radius-lg);
-          overflow: hidden;
-          box-shadow: var(--shadow-lg);
-          animation: fadeIn 0.15s ease-out;
-        }
-
-        .region-dropdown-header {
-          padding: 12px 16px;
-          font-size: 10px;
-          font-weight: 700;
-          color: var(--text-faint);
-          text-transform: uppercase;
-          letter-spacing: 0.1em;
-          border-bottom: 1px solid var(--border-subtle);
-          background: rgba(0, 0, 0, 0.2);
-        }
-
-        .region-option {
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          width: 100%;
-          padding: 12px 16px;
-          background: transparent;
-          border: none;
-          text-align: left;
-          cursor: pointer;
-          transition: background 0.15s;
-        }
-
-        .region-option:hover {
-          background: rgba(255, 255, 255, 0.04);
-        }
-
-        .region-option.selected {
-          background: rgba(14, 165, 233, 0.08);
-        }
-
-        .region-option-code {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 12px;
-          color: var(--text-primary);
-          font-weight: 500;
-        }
-
-        .region-option-name {
-          font-size: 11px;
-          color: var(--text-muted);
-        }
-
-        .user-info {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 6px 14px;
-          background: rgba(255, 255, 255, 0.03);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-md);
-        }
-
-        .user-role {
-          padding: 3px 8px;
-          background: var(--gradient-primary);
-          border-radius: 4px;
-          font-size: 10px;
-          font-weight: 700;
-          color: white;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-          box-shadow: 0 2px 6px rgba(14, 165, 233, 0.2);
-        }
-
-        .user-email {
-          font-size: 12px;
-          color: var(--text-secondary);
-          font-weight: 500;
-        }
-
-        .main-content {
-          flex: 1;
-          padding: 48px;
-          max-width: 1600px;
-          margin: 0 auto;
-          width: 100%;
-        }
-
-        @media (max-width: 1200px) {
-          .main-content {
-            padding: 32px;
-          }
-        }
-
-        @media (max-width: 1024px) {
-          .sidebar {
-            width: 68px;
-          }
-
-          .sidebar .logo-text,
-          .sidebar .nav-label,
-          .sidebar .nav-section-label,
-          .sidebar .nav-indicator,
-          .sidebar .sidebar-footer {
-            display: none;
-          }
-
-          .sidebar .nav-item {
-            justify-content: center;
-            padding: 12px;
-          }
-
-          .main-wrapper {
-            margin-left: 68px;
-          }
+        
+        ::-webkit-scrollbar-thumb:hover {
+          background: #4a5568;
         }
       `}</style>
     </div>
   );
-}
+};
