@@ -9,6 +9,8 @@ import os
 from dotenv import load_dotenv
 
 from app.routes import health, upload, transcribe, evaluate, auth
+from app.middleware.logging import RequestLoggingMiddleware
+from app.utils.logging import logger
 
 load_dotenv()
 
@@ -17,6 +19,9 @@ app = FastAPI(
     description="AWS-First Multimodal AI System for Teaching Quality Evaluation",
     version="2.0.0"
 )
+
+# Request logging middleware (must be first)
+app.add_middleware(RequestLoggingMiddleware)
 
 # CORS middleware
 app.add_middleware(

@@ -4,9 +4,23 @@
  */
 import type { AppProps } from 'next/app';
 import Head from 'next/head';
+import Script from 'next/script';
+import { useEffect } from 'react';
 import '../styles/globals.css';
 
+const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
+
 export default function App({ Component, pageProps }: AppProps) {
+  useEffect(() => {
+    // Initialize gtag if GA4 is configured
+    if (GA_MEASUREMENT_ID && typeof window !== 'undefined') {
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = window.gtag || function(...args: any[]) {
+        window.dataLayer!.push(args);
+      };
+    }
+  }, []);
+
   return (
     <>
       <Head>
@@ -17,6 +31,30 @@ export default function App({ Component, pageProps }: AppProps) {
           rel="stylesheet"
         />
       </Head>
+      
+      {GA_MEASUREMENT_ID && (
+        <>
+          <Script
+            strategy="afterInteractive"
+            src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+          />
+          <Script
+            id="google-analytics"
+            strategy="afterInteractive"
+            dangerouslySetInnerHTML={{
+              __html: `
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                gtag('config', '${GA_MEASUREMENT_ID}', {
+                  page_path: window.location.pathname,
+                });
+              `,
+            }}
+          />
+        </>
+      )}
+      
       <Component {...pageProps} />
     </>
   );

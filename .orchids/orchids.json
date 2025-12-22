@@ -1,8 +1,0 @@
-{
-  "projectId": "3cf45755-c7ef-4a08-a48d-0adbf7fc9ad5",
-  "createdAt": 1766092145196,
-  "startupCommands": [
-    "cd frontend; npm install; npm run dev",
-    "cd backend; ./venv/Scripts/python.exe -m uvicorn main:app --reload --host 0.0.0.0 --port 8001"
-  ]
-}

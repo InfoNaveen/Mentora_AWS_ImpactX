@@ -6,6 +6,7 @@ import { useRouter } from 'next/router';
 import { Button } from '../components/Button';
 import { Zap, Shield, BarChart3 } from 'lucide-react';
 import { apiService } from '../lib/api';
+import { analytics } from '../lib/analytics';
 
 export default function Home() {
   const router = useRouter();
@@ -20,6 +21,7 @@ export default function Home() {
   const handleDemoAccess = async () => {
     try {
       await apiService.getDemoToken();
+      analytics.loginDemo();
       router.push('/dashboard');
     } catch (error) {
       console.error('Demo access failed:', error);
