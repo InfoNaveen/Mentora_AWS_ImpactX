@@ -1,28 +1,10 @@
-"""
-Transcription Service
-Stub implementation - ready for AWS Transcribe integration
-"""
-import random
-import time
-from app.models.responses import TranscribeResponse
+from app.utils.logging import logger
 
 class TranscriptionService:
     @staticmethod
-    def transcribe_video(video_path: str) -> TranscribeResponse:
-        """Transcribe audio from video file (stub)"""
-        # Simulate processing
-        time.sleep(0.5)
-        
-        sample_transcriptions = [
-            "Today we'll be discussing the fundamentals of machine learning. Machine learning is a subset of artificial intelligence that enables computers to learn and make decisions from data without being explicitly programmed for every task.",
-            "Welcome to our physics lecture on Newton's laws of motion. The first law states that an object at rest stays at rest and an object in motion stays in motion unless acted upon by an external force.",
-            "In today's mathematics class, we'll explore calculus derivatives. A derivative represents the rate of change of a function with respect to its variable.",
-            "Let's begin our chemistry lesson on molecular bonding. Covalent bonds form when atoms share electrons to achieve stable electron configurations."
-        ]
-        
-        return TranscribeResponse(
-            transcribed_text=random.choice(sample_transcriptions),
-            duration=random.uniform(300, 1800),
-            confidence=random.uniform(0.85, 0.98)
-        )
+    def transcribe_video(video_uri: str):
+        logger.info(f"Transcribing video: {video_uri}")
+        # In a real app, this would call Amazon Transcribe
+        return "This is a mock transcript of the lecture. The teacher explains the core concepts of AWS Cloud Computing and S3 storage. Good use of metaphors."
 
+transcribe_service = TranscriptionService()

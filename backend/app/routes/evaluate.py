@@ -4,8 +4,8 @@ Evaluation Route
 from fastapi import APIRouter, HTTPException, Request
 from app.models.requests import EvaluateRequest
 from app.models.responses import EvaluateResponse
-from app.SERVICES.multi_agent_service import multi_agent_service
-from app.UTILS.logging import logger
+from app.services.multi_agent_service import multi_agent_service
+from app.utils.logging import logger
 
 router = APIRouter()
 

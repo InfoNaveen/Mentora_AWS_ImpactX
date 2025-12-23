@@ -1,2 +1,1 @@
-# AWS Service Abstractions
-
+# Package init

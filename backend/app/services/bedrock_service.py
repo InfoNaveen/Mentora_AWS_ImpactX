@@ -1,109 +1,74 @@
-"""
-AWS Bedrock Service
-Claude integration for teaching evaluation
-"""
-import json
 import boto3
-from typing import Dict, Any
+import json
+import os
+from app.utils.logging import logger
 from app.core.config import settings
 
-
 class BedrockService:
-    """AWS Bedrock LLM service"""
-    
     def __init__(self):
-        if settings.AWS_ACCESS_KEY_ID and settings.AWS_SECRET_ACCESS_KEY:
-            self.client = boto3.client(
-                'bedrock-runtime',
-                region_name=settings.AWS_REGION,
-                aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
-                aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
-            )
-            self.is_configured = True
-        else:
-            self.client = None
-            self.is_configured = False
-    
-    def evaluate_teaching(self, transcript: str, syllabus: str, objectives: str = None) -> Dict[str, Any]:
-        """Evaluate teaching using Bedrock"""
-        if not self.is_configured:
-            return self._stub_evaluation(transcript, syllabus, objectives)
+        self.client = None
+        if settings.AWS_ACCESS_KEY_ID:
+            try:
+                self.client = boto3.client(
+                    service_name='bedrock-runtime',
+                    region_name=settings.AWS_REGION,
+                    aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+                    aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY
+                )
+            except Exception as e:
+                logger.error(f"Failed to initialize Bedrock client: {e}")
+
+    def evaluate_teaching(self, transcript: str, syllabus: str):
+        if not self.client:
+            logger.warning("Bedrock client not initialized, using mock evaluation")
+            return self._mock_evaluation()
+
+        prompt = f"""
+        Analyze this teacher's transcript against the syllabus.
         
+        Syllabus:
+        {syllabus}
+        
+        Transcript:
+        {transcript}
+        
+        Return a JSON object with:
+        - clarity_score (0-100)
+        - coverage_score (0-100)
+        - pedagogy_score (0-100)
+        - feedback (string)
+        - suggestions (list of strings)
+        """
+
         try:
-            # System prompt for Claude
-            system_prompt = "You are an expert educational evaluator. Analyze the teaching transcript and evaluate its quality based on the syllabus. Provide scores (1-10) and detailed reasoning."
-            
-            # User message
-            user_message = f"""
-Transcript: {transcript}
-
-Syllabus: {syllabus}
-
-Objectives: {objectives or 'No specific objectives provided'}
-
-Provide evaluation with scores for:
-1. Engagement
-2. Concept Coverage
-3. Clarity
-4. Pedagogy
-
-Format response as JSON: {{engagement_score, concept_coverage_score, clarity_score, pedagogy_score, overall_score, reasoning: [], improvements: []}}
-"""
-
-            # Claude 3 Messages API format
-            body = json.dumps({
-                "anthropic_version": "bedrock-2023-05-31",
-                "max_tokens": 2000,
-                "system": system_prompt,
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": user_message
-                            }
-                        ]
-                    }
-                ],
-                "temperature": 0.3,
-                "top_p": 0.9,
-            })
-            
             response = self.client.invoke_model(
-                modelId=settings.AWS_BEDROCK_MODEL_ID,
-                body=body
+                modelId=settings.AWS_BEDROCK_MODEL_ID or 'anthropic.claude-3-haiku-20240307-v1:0',
+                body=json.dumps({
+                    "anthropic_version": "bedrock-2023-05-31",
+                    "max_tokens": 1024,
+                    "messages": [
+                        {"role": "user", "content": prompt}
+                    ]
+                })
             )
-            
-            response_body = json.loads(response['body'].read())
-            response_text = response_body['content'][0]['text']
-            
-            # Extract JSON
-            start_idx = response_text.find('{')
-            end_idx = response_text.rfind('}') + 1
-            
-            if start_idx != -1 and end_idx != 0:
-                json_str = response_text[start_idx:end_idx]
-                result = json.loads(json_str)
-                return result
-            else:
-                return self._stub_evaluation(transcript, syllabus, objectives)
-                
+            result = json.loads(response.get('body').read())
+            # Parse Claude 3 response format
+            text_response = result['content'][0]['text']
+            # Find JSON in text
+            start = text_response.find('{')
+            end = text_response.rfind('}') + 1
+            return json.loads(text_response[start:end])
         except Exception as e:
-            print(f"Bedrock evaluation failed: {str(e)}")
-            return self._stub_evaluation(transcript, syllabus, objectives)
-    
-    def _stub_evaluation(self, transcript: str, syllabus: str, objectives: str = None) -> Dict[str, Any]:
-        """Fallback evaluation"""
-        return {
-            "engagement_score": 7.5,
-            "concept_coverage_score": 8.0,
-            "clarity_score": 7.8,
-            "pedagogy_score": 7.2,
-            "overall_score": 7.6,
-            "reasoning": ["Good engagement with interactive elements", "Strong alignment with syllabus content", "Clear explanations with appropriate examples", "Effective use of teaching techniques"],
-            "improvements": ["Add more questions to increase student engagement", "Include more real-world examples"]
-        }
+            logger.error(f"Bedrock evaluation failed: {e}")
+            return self._mock_evaluation()
 
+    def _mock_evaluation(self):
+        return {
+            "clarity_score": 85,
+            "coverage_score": 70,
+            "pedagogy_score": 90,
+            "feedback": "Great energy and clear examples. Some syllabus points were skipped.",
+            "suggestions": ["Incorporate more student interaction", "Connect to next week's topic"]
+        }
 
 bedrock_service = BedrockService()
