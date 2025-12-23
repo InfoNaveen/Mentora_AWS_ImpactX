@@ -1,48 +1,70 @@
 """
 Evaluation Service
-Deterministic heuristic-based evaluation
+Multi-agent evaluation using AWS Bedrock and deterministic heuristics
 """
 import re
 import random
 from typing import List
 from app.models.requests import EvaluateRequest
 from app.models.responses import EvaluateResponse, EvaluationScore
+from app.services.bedrock_service import bedrock_service
+
 
 class EvaluationService:
     @staticmethod
     def evaluate_teaching(request: EvaluateRequest) -> EvaluateResponse:
-        """Evaluate teaching quality using deterministic heuristics"""
+        """Evaluate teaching quality using multi-agent approach"""
         
-        transcript = request.transcribed_text.lower()
-        syllabus = request.syllabus_text.lower()
+        transcript = request.transcribed_text
+        syllabus = request.syllabus_text
+        objectives = request.teaching_objectives
         
-        # Calculate scores
-        engagement_score = EvaluationService._calculate_engagement(transcript)
-        clarity_score = EvaluationService._calculate_clarity(transcript)
-        concept_coverage_score = EvaluationService._calculate_concept_coverage(transcript, syllabus)
-        pedagogy_score = EvaluationService._calculate_pedagogy(transcript)
+        # First, try AWS Bedrock for enhanced evaluation
+        bedrock_result = bedrock_service.evaluate_teaching(transcript, syllabus, objectives)
         
-        # Weighted overall score
-        overall_score = (
-            engagement_score * 0.25 +
-            concept_coverage_score * 0.30 +
-            clarity_score * 0.25 +
-            pedagogy_score * 0.20
-        )
-        
-        scores = EvaluationScore(
-            engagement_score=round(engagement_score, 1),
-            concept_coverage_score=round(concept_coverage_score, 1),
-            clarity_score=round(clarity_score, 1),
-            pedagogy_score=round(pedagogy_score, 1),
-            overall_score=round(overall_score, 1)
-        )
-        
-        # Generate reasoning
-        reasoning = EvaluationService._generate_reasoning(scores, transcript, syllabus)
-        
-        # Generate improvements
-        improvements = EvaluationService._generate_improvements(scores)
+        # If Bedrock is available and successful, use its results
+        if bedrock_result.get('engagement_score'):
+            scores = EvaluationScore(
+                engagement_score=round(bedrock_result['engagement_score'], 1),
+                concept_coverage_score=round(bedrock_result['concept_coverage_score'], 1),
+                clarity_score=round(bedrock_result['clarity_score'], 1),
+                pedagogy_score=round(bedrock_result['pedagogy_score'], 1),
+                overall_score=round(bedrock_result['overall_score'], 1)
+            )
+            reasoning = bedrock_result.get('reasoning', [])
+            improvements = bedrock_result.get('improvements', [])
+        else:
+            # Fallback to deterministic evaluation
+            transcript_lower = transcript.lower()
+            syllabus_lower = syllabus.lower()
+            
+            # Calculate scores using deterministic heuristics
+            engagement_score = EvaluationService._calculate_engagement(transcript_lower)
+            clarity_score = EvaluationService._calculate_clarity(transcript_lower)
+            concept_coverage_score = EvaluationService._calculate_concept_coverage(transcript_lower, syllabus_lower)
+            pedagogy_score = EvaluationService._calculate_pedagogy(transcript_lower)
+            
+            # Weighted overall score
+            overall_score = (
+                engagement_score * 0.25 +
+                concept_coverage_score * 0.30 +
+                clarity_score * 0.25 +
+                pedagogy_score * 0.20
+            )
+            
+            scores = EvaluationScore(
+                engagement_score=round(engagement_score, 1),
+                concept_coverage_score=round(concept_coverage_score, 1),
+                clarity_score=round(clarity_score, 1),
+                pedagogy_score=round(pedagogy_score, 1),
+                overall_score=round(overall_score, 1)
+            )
+            
+            # Generate reasoning
+            reasoning = EvaluationService._generate_reasoning(scores, transcript_lower, syllabus_lower)
+            
+            # Generate improvements
+            improvements = EvaluationService._generate_improvements(scores)
         
         return EvaluateResponse(
             scores=scores,

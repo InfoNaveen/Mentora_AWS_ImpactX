@@ -12,7 +12,7 @@ router = APIRouter()
 @router.post("/video", response_model=UploadResponse)
 async def upload_video(file: UploadFile = File(...), request: Request = None):  # type: ignore
     """Upload a lecture video file"""
-    request_id = getattr(request.state, 'request_id', None) if request else None
+    request_id = request.scope.get('request_id') if request else None
     
     logger.info(f"Video upload initiated: {file.filename}", request_id=request_id)
     

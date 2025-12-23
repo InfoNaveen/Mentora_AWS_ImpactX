@@ -21,7 +21,7 @@ app = FastAPI(
 )
 
 # Request logging middleware (must be first)
-app.add_middleware(RequestLoggingMiddleware)
+# app.add_middleware(RequestLoggingMiddleware)  # Temporarily disabled for debugging
 
 # CORS middleware
 app.add_middleware(
