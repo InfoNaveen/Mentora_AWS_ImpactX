@@ -1,159 +1,130 @@
-import React, { useState, useEffect } from 'react';
-import dynamic from 'next/dynamic';
-import { EvaluationRecord } from '../lib/storage';
-import { CheckCircle2, AlertTriangle, Lightbulb, ChevronRight, ChevronDown, Download, Share2 } from 'lucide-react';
-import { generatePDF } from '../lib/pdf';
+import React from 'react';
+import { EvaluateResponse } from '../services/api';
 
-// Dynamic import for Recharts to avoid SSR issues
-const ScoringRadar = dynamic(() => import('./Charts').then(mod => mod.ScoringRadar), { ssr: false });
-const ScoringBar = dynamic(() => import('./Charts').then(mod => mod.ScoringBar), { ssr: false });
-
-interface Props {
-  evaluation: EvaluationRecord;
+interface EvaluationResultsProps {
+  results: EvaluateResponse;
 }
 
-export const EvaluationResults: React.FC<Props> = ({ evaluation }) => {
-  const [expandedSection, setExpandedSection] = useState<string | null>(null);
-
-  const radarData = [
-    { subject: 'Engagement', score: evaluation.scores.engagement_score, fullMark: 10 },
-    { subject: 'Coverage', score: evaluation.scores.concept_coverage_score, fullMark: 10 },
-    { subject: 'Clarity', score: evaluation.scores.clarity_score, fullMark: 10 },
-    { subject: 'Pedagogy', score: evaluation.scores.pedagogy_score, fullMark: 10 },
-  ];
-
-  const barData = [
-    { name: 'Engagement', score: evaluation.scores.engagement_score },
-    { name: 'Coverage', score: evaluation.scores.concept_coverage_score },
-    { name: 'Clarity', score: evaluation.scores.clarity_score },
-    { name: 'Pedagogy', score: evaluation.scores.pedagogy_score },
-  ];
-
+const EvaluationResults: React.FC<EvaluationResultsProps> = ({ results }) => {
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-emerald-500';
-    if (score >= 6) return 'text-amber-500';
-    return 'text-rose-500';
+    if (score >= 8) return 'from-green-500 to-emerald-500';
+    if (score >= 6) return 'from-yellow-500 to-orange-500';
+    return 'from-red-500 to-pink-500';
   };
 
-  const getScoreBg = (score: number) => {
-    if (score >= 8) return 'bg-emerald-500/10 border-emerald-500/20';
-    if (score >= 6) return 'bg-amber-500/10 border-amber-500/20';
-    return 'bg-rose-500/10 border-rose-500/20';
+  const getScoreLabel = (score: number) => {
+    if (score >= 8) return 'Excellent';
+    if (score >= 6) return 'Good';
+    return 'Needs Improvement';
   };
 
   return (
-    <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <div className="flex items-center justify-between mb-2">
-        <div>
-          <h2 className="text-2xl font-bold text-white">Evaluation Results</h2>
-          <p className="text-slate-400 text-sm">Session: {evaluation.filename}</p>
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+      <div className="flex items-center space-x-3 mb-6">
+        <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
+          <span className="text-white text-sm">🎯</span>
         </div>
-        <div className="flex gap-2">
-          <button onClick={() => generatePDF(evaluation)} className="aws-button-secondary flex items-center gap-2 py-1.5 px-3">
-            <Download size={16} /> Export PDF
-          </button>
-          <button className="aws-button-secondary flex items-center gap-2 py-1.5 px-3">
-            <Share2 size={16} /> Share
-          </button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Overall Score Card */}
-        <div className="aws-card lg:col-span-1 flex flex-col items-center justify-center text-center py-10">
-          <div className="relative mb-4">
-            <svg className="w-32 h-32 transform -rotate-90">
-              <circle
-                cx="64"
-                cy="64"
-                r="58"
-                stroke="currentColor"
-                strokeWidth="8"
-                fill="transparent"
-                className="text-slate-800"
-              />
-              <circle
-                cx="64"
-                cy="64"
-                r="58"
-                stroke="currentColor"
-                strokeWidth="8"
-                fill="transparent"
-                strokeDasharray={364}
-                strokeDashoffset={364 - (evaluation.scores.overall_score / 10) * 364}
-                className={`${getScoreColor(evaluation.scores.overall_score)} transition-all duration-1000 ease-out`}
-              />
-            </svg>
-            <div className="absolute inset-0 flex flex-col items-center justify-center">
-              <span className="text-4xl font-bold text-white">{evaluation.scores.overall_score.toFixed(1)}</span>
-              <span className="text-xs text-slate-500 uppercase tracking-wider">Overall</span>
-            </div>
-          </div>
-          <div className={`px-4 py-1 rounded-full text-xs font-bold uppercase tracking-widest ${getScoreBg(evaluation.scores.overall_score)} ${getScoreColor(evaluation.scores.overall_score)} border`}>
-            {evaluation.scores.overall_score >= 8 ? 'Exceptional' : evaluation.scores.overall_score >= 6 ? 'Competent' : 'Action Required'}
-          </div>
-        </div>
-
-        {/* Radar Chart */}
-        <div className="aws-card lg:col-span-2">
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4">Metric Distribution</h3>
-          <div className="h-[280px]">
-            <ScoringRadar data={radarData} />
-          </div>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Detailed Reasoning */}
-        <div className="aws-card">
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <CheckCircle2 size={16} className="text-emerald-500" /> Key Observations
-          </h3>
-          <div className="space-y-3">
-            {evaluation.reasoning.map((reason, idx) => (
-              <div key={idx} className="flex gap-3 p-3 rounded bg-white/5 border border-white/10 hover:border-emerald-500/30 transition-colors">
-                <div className="mt-1"><ChevronRight size={14} className="text-emerald-500" /></div>
-                <p className="text-sm text-slate-300">{reason}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Improvement Suggestions */}
-        <div className="aws-card">
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-4 flex items-center gap-2">
-            <Lightbulb size={16} className="text-amber-500" /> Actionable Insights
-          </h3>
-          <div className="space-y-3">
-            {evaluation.suggestions.map((suggestion, idx) => (
-              <div key={idx} className="flex gap-3 p-3 rounded bg-white/5 border border-white/10 hover:border-amber-500/30 transition-colors">
-                <div className="mt-1"><AlertTriangle size={14} className="text-amber-500" /></div>
-                <p className="text-sm text-slate-300">{suggestion}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Transcript Preview */}
-      <div className="aws-card">
-        <button 
-          onClick={() => setExpandedSection(expandedSection === 'transcript' ? null : 'transcript')}
-          className="w-full flex items-center justify-between group"
-        >
-          <h3 className="text-sm font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-            Session Transcript
-          </h3>
-          <div className="text-slate-500 group-hover:text-white transition-colors">
-            {expandedSection === 'transcript' ? <ChevronDown size={20} /> : <ChevronRight size={20} />}
-          </div>
-        </button>
-        {expandedSection === 'transcript' && (
-          <div className="mt-4 p-4 bg-black/40 rounded border border-white/5 font-mono text-sm text-slate-400 leading-relaxed max-h-[400px] overflow-y-auto">
-            {evaluation.transcript}
+        <h3 className="text-xl font-semibold text-gray-800">AI Evaluation Results</h3>
+        {(results as any).ai_powered && (
+          <div className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+            🤖 AI-Powered Analysis
           </div>
         )}
       </div>
+      
+      {/* Overall Score */}
+      <div className="text-center mb-8 p-6 bg-gradient-to-br from-blue-50 to-purple-50 rounded-xl">
+        <h4 className="text-lg font-semibold text-gray-700 mb-4">Overall Teaching Score</h4>
+        <div className="relative inline-block">
+          <div className="w-32 h-32 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 flex items-center justify-center shadow-lg">
+            <div className="text-center">
+              <span className="text-3xl font-bold text-white">{results.scores.overall_score.toFixed(1)}</span>
+              <div className="text-white text-sm opacity-90">/10</div>
+            </div>
+          </div>
+        </div>
+        <p className="text-lg font-semibold mt-4 text-gray-700">{getScoreLabel(results.scores.overall_score)}</p>
+      </div>
+
+      {/* Individual Scores */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <div className="text-center p-4 bg-gray-50 rounded-xl">
+          <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 flex items-center justify-center">
+            <span className="text-white font-bold text-lg">{results.scores.engagement_score.toFixed(1)}</span>
+          </div>
+          <h5 className="font-semibold text-gray-800">Student Engagement</h5>
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div 
+              className="bg-gradient-to-r from-blue-500 to-cyan-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${(results.scores.engagement_score / 10) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="text-center p-4 bg-gray-50 rounded-xl">
+          <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-purple-500 to-pink-500 flex items-center justify-center">
+            <span className="text-white font-bold text-lg">{results.scores.concept_coverage_score.toFixed(1)}</span>
+          </div>
+          <h5 className="font-semibold text-gray-800">Concept Coverage</h5>
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div 
+              className="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${(results.scores.concept_coverage_score / 10) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <div className="text-center p-4 bg-gray-50 rounded-xl">
+          <div className="w-16 h-16 mx-auto mb-3 rounded-full bg-gradient-to-r from-green-500 to-emerald-500 flex items-center justify-center">
+            <span className="text-white font-bold text-lg">{results.scores.clarity_score.toFixed(1)}</span>
+          </div>
+          <h5 className="font-semibold text-gray-800">Explanation Clarity</h5>
+          <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+            <div 
+              className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
+              style={{ width: `${(results.scores.clarity_score / 10) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+      </div>
+
+      {/* Summary */}
+      <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+        <h4 className="font-semibold text-blue-800 mb-2 flex items-center">
+          <span className="mr-2">📋</span>
+          Analysis Summary
+        </h4>
+        <p className="text-blue-700 leading-relaxed">{results.summary}</p>
+      </div>
+
+      {/* Recommendations */}
+      <div className="p-4 bg-green-50 border border-green-200 rounded-xl">
+        <h4 className="font-semibold text-green-800 mb-3 flex items-center">
+          <span className="mr-2">💡</span>
+          AI Recommendations
+        </h4>
+        <ul className="space-y-2">
+          {results.recommendations.map((recommendation, index) => (
+            <li key={index} className="flex items-start space-x-2 text-green-700">
+              <span className="text-green-500 mt-1">•</span>
+              <span className="leading-relaxed">{recommendation}</span>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      {/* Detailed Analysis (if available) */}
+      {(results as any).detailed_analysis && (
+        <div className="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-xl">
+          <h4 className="font-semibold text-purple-800 mb-2 flex items-center">
+            <span className="mr-2">🧠</span>
+            Detailed AI Analysis
+          </h4>
+          <p className="text-purple-700 text-sm leading-relaxed">{(results as any).detailed_analysis}</p>
+        </div>
+      )}
     </div>
   );
 };
+
+export default EvaluationResults;

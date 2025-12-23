@@ -14,11 +14,21 @@ async def evaluate_teaching(request: EvaluateRequest, http_request: Request = No
     """Evaluate teaching quality using multi-agent system based on transcription and syllabus"""
     request_id = http_request.scope.get('request_id') if http_request else None
     
-    logger.info("Multi-agent evaluation started", extra={"request_id": request_id})
+    logger.info("Multi-agent evaluation started", request_id=request_id, metadata={
+        "transcript_length": len(request.transcribed_text),
+        "syllabus_length": len(request.syllabus_text),
+    })
     
     try:
-        # Pass transcript and syllabus to multi_agent_service
-        result = await multi_agent_service.evaluate_video(request.video_path, request.syllabus_text)
+        result = multi_agent_service.evaluate_teaching(request)
+        
+        logger.info("Multi-agent evaluation completed", request_id=request_id, metadata={
+            "overall_score": result.scores.overall_score,
+            "engagement_score": result.scores.engagement_score,
+            "coverage_score": result.scores.concept_coverage_score,
+            "clarity_score": result.scores.clarity_score,
+            "pedagogy_score": result.scores.pedagogy_score,
+        })
         
         return result
     except Exception as e:

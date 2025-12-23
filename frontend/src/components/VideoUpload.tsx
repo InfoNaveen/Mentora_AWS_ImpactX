@@ -9,11 +9,33 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUploadSuccess }) => {
   const [file, setFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [dragActive, setDragActive] = useState(false);
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = event.target.files?.[0];
     if (selectedFile) {
       setFile(selectedFile);
+      setError(null);
+    }
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
       setError(null);
     }
   };
@@ -40,22 +62,71 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUploadSuccess }) => {
   };
 
   return (
-    <div className="upload-container">
-      <h2>Upload Lecture Video</h2>
+    <div className="bg-white rounded-2xl shadow-lg border border-gray-200 p-6">
+      <div className="flex items-center space-x-3 mb-4">
+        <div className="w-8 h-8 bg-gradient-to-r from-green-600 to-blue-600 rounded-lg flex items-center justify-center">
+          <span className="text-white text-sm">📹</span>
+        </div>
+        <h3 className="text-xl font-semibold text-gray-800">Upload Lecture Video</h3>
+      </div>
       
-      <div className="file-input-container">
+      <div 
+        className={`border-2 border-dashed rounded-xl p-8 text-center transition-all duration-200 ${
+          dragActive 
+            ? 'border-blue-500 bg-blue-50' 
+            : file 
+            ? 'border-green-500 bg-green-50' 
+            : 'border-gray-300 hover:border-gray-400'
+        }`}
+        onDragEnter={handleDrag}
+        onDragLeave={handleDrag}
+        onDragOver={handleDrag}
+        onDrop={handleDrop}
+      >
         <input
           type="file"
           accept="video/*"
           onChange={handleFileChange}
           disabled={uploading}
-          className="file-input"
+          className="hidden"
+          id="video-upload"
         />
         
+        <label htmlFor="video-upload" className="cursor-pointer">
+          <div className="space-y-4">
+            <div className="w-16 h-16 mx-auto bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+              <span className="text-white text-2xl">📁</span>
+            </div>
+            <div>
+              <p className="text-lg font-semibold text-gray-700">
+                {file ? file.name : 'Drop your video here or click to browse'}
+              </p>
+              <p className="text-sm text-gray-500 mt-1">
+                Supports MP4, AVI, MOV, MKV files up to 100MB
+              </p>
+            </div>
+          </div>
+        </label>
+        
         {file && (
-          <div className="file-info">
-            <p>Selected: {file.name}</p>
-            <p>Size: {(file.size / 1024 / 1024).toFixed(2)} MB</p>
+          <div className="mt-4 p-3 bg-white rounded-lg border border-gray-200">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <div className="w-8 h-8 bg-blue-100 rounded-lg flex items-center justify-center">
+                  <span className="text-blue-600 text-sm">🎬</span>
+                </div>
+                <div className="text-left">
+                  <p className="font-medium text-gray-800">{file.name}</p>
+                  <p className="text-sm text-gray-500">{(file.size / 1024 / 1024).toFixed(2)} MB</p>
+                </div>
+              </div>
+              <button
+                onClick={() => setFile(null)}
+                className="text-gray-400 hover:text-red-500 transition-colors"
+              >
+                ✕
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -63,69 +134,26 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onUploadSuccess }) => {
       <button
         onClick={handleUpload}
         disabled={!file || uploading}
-        className="upload-button"
+        className="w-full mt-6 bg-gradient-to-r from-green-600 to-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-green-700 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 flex items-center justify-center space-x-2"
       >
-        {uploading ? 'Uploading...' : 'Upload Video'}
+        {uploading ? (
+          <>
+            <div className="animate-spin w-5 h-5 border-2 border-white border-t-transparent rounded-full"></div>
+            <span>Uploading to AWS...</span>
+          </>
+        ) : (
+          <>
+            <span>☁️</span>
+            <span>Upload to Cloud</span>
+          </>
+        )}
       </button>
 
-      {error && <div className="error-message">{error}</div>}
-
-      <style jsx>{`
-        .upload-container {
-          padding: 20px;
-          border: 2px dashed #ccc;
-          border-radius: 8px;
-          text-align: center;
-          margin-bottom: 20px;
-        }
-
-        .file-input-container {
-          margin: 20px 0;
-        }
-
-        .file-input {
-          margin-bottom: 10px;
-        }
-
-        .file-info {
-          background: #f5f5f5;
-          padding: 10px;
-          border-radius: 4px;
-          margin: 10px 0;
-        }
-
-        .file-info p {
-          margin: 5px 0;
-          font-size: 14px;
-        }
-
-        .upload-button {
-          background: #007bff;
-          color: white;
-          border: none;
-          padding: 12px 24px;
-          border-radius: 4px;
-          cursor: pointer;
-          font-size: 16px;
-        }
-
-        .upload-button:disabled {
-          background: #ccc;
-          cursor: not-allowed;
-        }
-
-        .upload-button:hover:not(:disabled) {
-          background: #0056b3;
-        }
-
-        .error-message {
-          color: #dc3545;
-          margin-top: 10px;
-          padding: 10px;
-          background: #f8d7da;
-          border-radius: 4px;
-        }
-      `}</style>
+      {error && (
+        <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+          <p className="text-red-800 text-sm">{error}</p>
+        </div>
+      )}
     </div>
   );
 };

@@ -33,61 +33,6 @@ async def get_demo_token():
         }
     )
 
-    
-    return AuthResponse(
-        token=token,
-        user={
-            "id": "demo-user-001",
-            "email": "demo@mentora.ai",
-            "role": "demo",
-            "name": "Demo User"
-        }
-    )
-
-    
-    return AuthResponse(
-        token=token,
-        user={
-            "id": "demo-user-001",
-            "email": "demo@mentora.ai",
-            "role": "demo",
-            "name": "Demo User"
-        }
-    )
-
-    
-    return AuthResponse(
-        token=token,
-        user={
-            "id": "demo-user-001",
-            "email": "demo@mentora.ai",
-            "role": "demo",
-            "name": "Demo User"
-        }
-    )
-
-    
-    return AuthResponse(
-        token=token,
-        user={
-            "id": "demo-user-001",
-            "email": "demo@mentora.ai",
-            "role": "demo",
-            "name": "Demo User"
-        }
-    )
-
-    
-    return AuthResponse(
-        token=token,
-        user={
-            "id": "demo-user-001",
-            "email": "demo@mentora.ai",
-            "role": "demo",
-            "name": "Demo User"
-        }
-    )
-
 @router.get("/me")
 async def get_current_user_profile(user: User = Depends(get_current_user)):
     """Get current authenticated user profile"""
