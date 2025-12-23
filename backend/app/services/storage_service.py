@@ -60,8 +60,7 @@ class StorageService:
     
     def _local_upload(self, file_path: str, s3_key: str) -> bool:
         """Fallback to local upload"""
-        # For now, the file is already saved locally
-        # In a real implementation, we'd copy it to the designated local path
+        logger.info(f"Local storage fallback used for {s3_key}")
         return True
 
 

@@ -9,7 +9,7 @@ from app.core.security import create_jwt_token, get_current_user, User
 router = APIRouter()
 
 class AuthResponse(BaseModel):
-    access_token: str
+    token: str
     token_type: str = "bearer"
     user: dict
 
@@ -24,7 +24,62 @@ async def get_demo_token():
     )
     
     return AuthResponse(
-        access_token=token,
+        token=token,
+        user={
+            "id": "demo-user-001",
+            "email": "demo@mentora.ai",
+            "role": "demo",
+            "name": "Demo User"
+        }
+    )
+
+    
+    return AuthResponse(
+        token=token,
+        user={
+            "id": "demo-user-001",
+            "email": "demo@mentora.ai",
+            "role": "demo",
+            "name": "Demo User"
+        }
+    )
+
+    
+    return AuthResponse(
+        token=token,
+        user={
+            "id": "demo-user-001",
+            "email": "demo@mentora.ai",
+            "role": "demo",
+            "name": "Demo User"
+        }
+    )
+
+    
+    return AuthResponse(
+        token=token,
+        user={
+            "id": "demo-user-001",
+            "email": "demo@mentora.ai",
+            "role": "demo",
+            "name": "Demo User"
+        }
+    )
+
+    
+    return AuthResponse(
+        token=token,
+        user={
+            "id": "demo-user-001",
+            "email": "demo@mentora.ai",
+            "role": "demo",
+            "name": "Demo User"
+        }
+    )
+
+    
+    return AuthResponse(
+        token=token,
         user={
             "id": "demo-user-001",
             "email": "demo@mentora.ai",
