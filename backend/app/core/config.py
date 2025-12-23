@@ -4,6 +4,9 @@ AWS-First Configuration Management
 """
 import os
 from typing import List
+from dotenv import load_dotenv
+
+load_dotenv()
 
 class Settings:
     def __init__(self):
