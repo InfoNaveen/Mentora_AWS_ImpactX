@@ -18,10 +18,8 @@ async def evaluate_teaching(request: EvaluateRequest, http_request: Request = No
     
     try:
         # Pass transcript and syllabus to multi_agent_service
-        result = multi_agent_service.evaluate(request.transcribed_text, request.syllabus_text)
+        result = await multi_agent_service.evaluate_video(request.video_path, request.syllabus_text)
         
-        # Format the response to match EvaluateResponse model
-        # Assuming EvaluateResponse has scores, reasoning, improvements fields
         return result
     except Exception as e:
         logger.error(f"Multi-agent evaluation failed: {str(e)}", extra={"request_id": request_id})
