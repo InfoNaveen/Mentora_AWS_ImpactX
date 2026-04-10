@@ -1,10 +1,11 @@
 @echo off
-echo Starting Mentora Backend...
-cd backend
-if not exist venv (
-    python -m venv venv
-)
-call venv\Scripts\activate
-pip install -r requirements.txt
-uvicorn main:app --reload --port 8000
-
+echo.
+echo  ==========================================
+echo   Mentora AI - Backend (FastAPI)
+echo   http://localhost:8000
+echo   API Docs: http://localhost:8000/docs
+echo  ==========================================
+echo.
+cd /d "%~dp0backend"
+python main.py
+pause
