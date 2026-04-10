@@ -97,6 +97,9 @@ def score_clarity(text):
     avg = sum(len(s.split()) for s in sents) / len(sents)
     ls  = max(0, 2.0 - abs(avg - 15) * 0.1)
     sw  = len(re.findall(r'\b(first|second|third|next|then|finally|therefore|because|however|for example|in summary)\b', text.lower()))
+    # Penalise if "complex" appears, boost if "example" appears
+    if "complex" in text.lower(): ls = max(0, ls - 0.5)
+    if "example" in text.lower(): ls = min(2.0, ls + 0.3)
     return round(min(9.8, max(4.0, 5.5 + ls + min(2.0, sw*0.25))), 1)
 
 def score_coverage(transcript, syllabus):
@@ -109,6 +112,8 @@ def score_pedagogy(text):
     ex = len(re.findall(r'\b(example|instance|case|scenario|demonstrate|show|consider|suppose|imagine)\b', text.lower()))
     sm = len(re.findall(r'\b(summary|conclude|recap|review|takeaway|remember|important)\b', text.lower()))
     sc = len(re.findall(r'\b(build on|prior knowledge|recall|previously|foundation|step by step)\b', text.lower()))
+    # Boost if "example" keyword present
+    if "example" in text.lower(): ex += 2
     return round(min(9.8, max(4.0, 5.0 + min(2.0, ex*0.2) + min(1.5, sm*0.3) + min(1.0, sc*0.4))), 1)
 
 COACH = {
@@ -142,9 +147,9 @@ EMOTION_ADVICE = {
 }
 
 def build_coach(scores, sent):
-    weakest  = min(scores, key=scores.get)
+    weakest   = min(scores, key=scores.get)
     strongest = max(scores, key=scores.get)
-    priority = sorted(scores, key=scores.get)
+    priority  = sorted(scores, key=scores.get)
     c = COACH.get(weakest, COACH["clarity"])
     return {
         "primary_tip":          c["tip"],
@@ -228,6 +233,8 @@ def run_eval(transcript, syllabus, objectives=""):
         "improvement_priority": coach["improvement_priority"],
         "evaluation_source":    source,
     }
+
+# ── Routes ────────────────────────────────────────────────────────────────────
 
 @app.get("/health")
 def health():
