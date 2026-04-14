@@ -2,9 +2,8 @@
 
 > "This is not just a project, this is a PRODUCT."
 
-**Team SOLACE**
-- Preetam Hosamani (Team Leader)
-- Hemanth Kumar
+
+-Naveen Patil
 
 ---
 
